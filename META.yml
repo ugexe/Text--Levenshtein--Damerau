@@ -20,6 +20,9 @@ no_index:
   directory:
     - inc
     - t
+requires:
+  List::Util: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.09
+  repository: https://github.com/ugexe/Text--Levenshtein--Damerau.git
+version: 0.10

@@ -1,8 +1,14 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.10 Mon Oct 22 19:15:12 2012
+	- Completely recoded to be more OO
+	- Added ability to retrieve best match from a list
+	- Added github repository to metadata
+	- Added: utf8 tests, CaSE tests, pod_coverage tests
+	- Added List::Util back
+
 0.09 Sun Oct 21 19:52:16 2012
 	- Fixed file creation time error with cpan installation
-
 
 0.08 Sun Oct 21 18:54:48 2012
 	- Documentation fix
