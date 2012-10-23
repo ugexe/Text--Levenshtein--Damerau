@@ -1,3 +1,13 @@
+blib/arch/.exists
+blib/arch/auto/Text/Levenshtein/Damerau/.exists
+blib/bin/.exists
+blib/lib/auto/Text/Levenshtein/Damerau/.exists
+blib/lib/Text/Levenshtein/.exists
+blib/lib/Text/Levenshtein/Damerau.pm
+blib/man1/.exists
+blib/man3/.exists
+blib/man3/Text::Levenshtein::Damerau.3pm
+blib/script/.exists
 Changes
 inc/Module/Install.pm
 inc/Module/Install/AutoManifest.pm
@@ -6,6 +16,7 @@ inc/Module/Install/Can.pm
 inc/Module/Install/Fetch.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
+inc/Module/Install/Repository.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Text/Levenshtein/Damerau.pm
@@ -18,6 +29,7 @@ MYMETA.json
 MYMETA.yml
 README
 t/00_compile.t
-t/01_imports.t
-t/02_edistance.t
+t/01_dld.t
+t/02_dld_utf8.t
 t/pod.t
+t/pod_coverage.t

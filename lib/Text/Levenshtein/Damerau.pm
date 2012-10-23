@@ -3,7 +3,10 @@ package Text::Levenshtein::Damerau;
 use utf8;
 use List::Util qw/reduce min/;
 
-our $VERSION = '0.10';
+@ISA = qw(Exporter);
+@EXPORT_OK = qw(edistance);
+
+our $VERSION = '0.12';
 
 =head1 NAME
 
@@ -11,27 +14,27 @@ Text::Levenshtein::Damerau - Damerau Levenshtein edit distance
 
 =head1 SYNOPSIS
 
- use Text::Levenshtein::Damerau;
- use warnings;
- use strict;
+	use Text::Levenshtein::Damerau;
+	use warnings;
+	use strict;
 
- my @targets = ('fuor','xr','fourrrr','fo');
+	my @targets = ('fuor','xr','fourrrr','fo');
 
- # Initialize Text::Levenshtein::Damerau object with text to compare against
- my $tld = Text::Levenshtein::Damerau->new('four');
+	# Initialize Text::Levenshtein::Damerau object with text to compare against
+	my $tld = Text::Levenshtein::Damerau->new('four');
 
- print $tld->dld($targets[0]);
- # prints 1
+	print $tld->dld($targets[0]);
+	# prints 1
 
- my %tld_hash = $tld->dld(@targets);
- print $tld_hash{'fuor'};
- # prints 1
+	my %tld_hash = $tld->dld(@targets);
+	print $tld_hash{'fuor'};
+	# prints 1
 
- print $tld->dld_best_match(@targets);
- # prints fuor
+	print $tld->dld_best_match(@targets);
+	# prints fuor
 
- print $tld->dld_best_distance(@targets);
- # prints 1
+	print $tld->dld_best_distance(@targets);
+ 	# prints 1
 
 =head1 DESCRIPTION
 
@@ -43,7 +46,8 @@ Returns the true Damerau Levenshtein edit distance of strings with adjacent tran
 
 =item new
 
-Constructor. Takes a scalar with the text you want to compare against.
+Constructor. Takes a scalar with the text (source) you want to compare against. 
+	my $tld = Text::Levenshtein::Damerau->new('Neil');
 
 =cut
 
@@ -61,8 +65,20 @@ sub new {
 
 =item dld
 
-Takes a $source string as first argument and a scalar/list of strings for the second argument ($targets). Returns hash reference with a key for each $target and a value of their edit distance.
+Takes either a scalar (string to compare against) and returns a scalar (the edit distance), or an array (of strings to compare against) and returns a hash such that $hash{$string_from_list} = $edit_distance 
 
+	my $tld = Text::Levenshtein::Damerau->new('Neil');
+	print $tld->dld('Niel'); # prints 1
+
+	#or if you want to check the distance of various items in a list
+
+	my @names_list = ('Neil','Jack');
+	my $tld = Text::Levenshtein::Damerau->new('Neil');
+	my %distance_hash = $tld->dld(@names_list); # pass a list, returns a hash
+	print $distance_hash{'Neil'}; #prints 1
+	print $distance_hash{'Jack'}; #prints 4
+
+	
 =cut
 
 sub dld {
@@ -85,7 +101,11 @@ sub dld {
 
 =item dld_best_match
 
-Takes a $source string as first argument and a scalar/list of strings for the second argument ($targets). Returns a scalar containing the text of the best match.
+Takes an array of strings as an argument, and returns the string with the smallest edit distance between the source and the array of strings passed.
+
+	my @name_spellings = ('Niel','Neell','KNiel');
+	print $tld->dld_best_match( @name_spellings );
+	# Takes distance of $tld source against every item in @targets, then returns the string of the best match
 
 =cut
 
@@ -99,7 +119,11 @@ sub dld_best_match {
 
 =item dld_best_distance
 
-Takes a $source string as first argument and a scalar/list of strings for the second argument ($targets). Returns the edit distance of the best match, aka $self->dld( $self->dld_best_match );
+Takes an array of strings as an argument, and returns the smallest edit distance between the source and the array of strings passed.
+
+	my @name_spellings = ('Niel','Neell','KNiel');
+	my $best_matching_string_distance = $tld->dld_best_distance( @name_spellings );
+	# Takes distance of $tld source against every item in @name_spellings, then returns the smallest edit distance
 
 =cut
 
@@ -111,11 +135,17 @@ sub dld_best_distance {
 	return $self->dld( $best_match );
 }
 
-=back
+=item edistance
+
+Exportable function to take the edit distance between a source and target string. Contains the actual algorithm implementation 
+
+	use Text::Levenshtein::Damerau qw/edistance/;
+	my $edit_distance = edistance('Neil','Niel');
+	# Takes distance of $tld source against every item in @targets, then returns the smallest edit distance
 
 =cut
 
-sub _edistance {
+sub edistance {
 	# Does the actual calculation on a pair of strings
 	my($source,$target) = @_;
 	if( _null_or_empty($source) ) {
@@ -173,6 +203,8 @@ sub _edistance {
 
 	return $H{$m + 1}{$n + 1};
 }
+
+=back
 
 sub _null_or_empty {
 	my $s = shift;

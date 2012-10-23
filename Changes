@@ -1,6 +1,10 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
-0.10 Mon Oct 22 19:15:12 2012
+0.12 Mon Oct 22 23:28:40 2012
+	- Documentation updates
+	- Returned exportable edistance() function
+
+0.11 Mon Oct 22 19:15:12 2012
 	- Completely recoded to be more OO
 	- Added ability to retrieve best match from a list
 	- Added github repository to metadata
