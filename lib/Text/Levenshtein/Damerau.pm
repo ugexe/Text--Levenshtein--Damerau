@@ -4,9 +4,9 @@ use utf8;
 use List::Util qw/reduce min/;
 
 @ISA = qw(Exporter);
-@EXPORT_OK = qw(edistance);
+@EXPORT = qw(edistance);
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 =head1 NAME
 
@@ -51,6 +51,7 @@ Constructor. Takes a scalar with the text (source) you want to compare against.
 
 =cut
 
+
 sub new {
 	my $class = shift;
 	my $self = {};
@@ -65,7 +66,8 @@ sub new {
 
 =item dld
 
-Takes either a scalar (string to compare against) and returns a scalar (the edit distance), or an array (of strings to compare against) and returns a hash such that $hash{$string_from_list} = $edit_distance 
+2 argument: takes a scalar (string to compare against) and returns a scalar (the edit distance)
+3 argument: takes an int (maximum distance to record; default is 8), an array (of strings to compare against), and returns a hash such that $hash{$string_from_list} = $edit_distance 
 
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
 	print $tld->dld('Niel'); # prints 1
@@ -83,16 +85,26 @@ Takes either a scalar (string to compare against) and returns a scalar (the edit
 
 sub dld {
 	my $self = shift;
+	my $arg1 = shift;
 	my @targets = @_;
+
 	my $source = $self->{'source'};
 	my %target_score;
 
-	if($#targets == 0) {
-		return _edistance($source,$targets[0]);
+	if(!$targets) {
+		return edistance($source,$arg1);
 	}
 	else {
+		if($arg1 !~ m/^\d+$/) {
+			$arg1 = 10;
+		}
+
 		foreach my $target ( @targets ) {
-			$target_score{$target} = _edistance($source,$target);
+			my $distance = edistance($source,$target);
+			
+			if($arg1 >= $distance) {
+				$target_score{$target} = edistance($source,$target);
+			}
 		}
 	}
 
@@ -204,8 +216,6 @@ sub edistance {
 	return $H{$m + 1}{$n + 1};
 }
 
-=back
-
 sub _null_or_empty {
 	my $s = shift;
 	
@@ -215,6 +225,8 @@ sub _null_or_empty {
 	
 	return 1;
 }
+
+=back
 
 1;
 __END__

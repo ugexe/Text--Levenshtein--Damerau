@@ -1,3 +1,3 @@
 use Test::More tests => 1;
 
-BEGIN { use_ok 'Text::Levenshtein::Damerau' }
+BEGIN { use_ok 'Text::Levenshtein::Damerau', qw/edistance/ }
