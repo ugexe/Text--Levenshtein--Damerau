@@ -24,4 +24,4 @@ requires:
 resources:
   license: http://dev.perl.org/licenses/
   repository: https://github.com/ugexe/Text--Levenshtein--Damerau.git
-version: 0.13
+version: 0.14

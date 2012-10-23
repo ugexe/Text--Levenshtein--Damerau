@@ -168,7 +168,7 @@ Constructor. Takes a scalar with the text (source) you want to compare against.
 .IP "dld" 4
 .IX Item "dld"
 2 argument: takes a scalar (string to compare against) and returns a scalar (the edit distance)
-3 argument: takes an int (maximum distance to record; default is 8), an array (of strings to compare against), and returns a hash such that \f(CW$hash\fR{$string_from_list} = \f(CW$edit_distance\fR
+3 argument: takes an int (maximum distance to record; default is 8, 0 = unlimited), an array (of strings to compare against), and returns a hash such that \f(CW$hash\fR{$string_from_list} = \f(CW$edit_distance\fR
 .Sp
 .Vb 2
 \&        my $tld = Text::Levenshtein::Damerau\->new(\*(AqNeil\*(Aq);
@@ -179,7 +179,7 @@ Constructor. Takes a scalar with the text (source) you want to compare against.
 \&        my @names_list = (\*(AqNeil\*(Aq,\*(AqJack\*(Aq);
 \&        my $tld = Text::Levenshtein::Damerau\->new(\*(AqNeil\*(Aq);
 \&        my %distance_hash = $tld\->dld(@names_list); # pass a list, returns a hash
-\&        print $distance_hash{\*(AqNeil\*(Aq}; #prints 1
+\&        print $distance_hash{\*(AqNiel\*(Aq}; #prints 1
 \&        print $distance_hash{\*(AqJack\*(Aq}; #prints 4
 .Ve
 .IP "dld_best_match" 4
@@ -209,9 +209,6 @@ Exportable function to take the edit distance between a source and target string
 \&        my $edit_distance = edistance(\*(AqNeil\*(Aq,\*(AqNiel\*(Aq);
 \&        # Takes distance of $tld source against every item in @targets, then returns the smallest edit distance
 .Ve
-.PP
-1;
-_\|_END_\|_
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 ugexe <\fIug@skunkds.com\fR>

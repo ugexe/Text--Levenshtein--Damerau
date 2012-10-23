@@ -4,9 +4,9 @@ use utf8;
 use List::Util qw/reduce min/;
 
 @ISA = qw(Exporter);
-@EXPORT = qw(edistance);
+@EXPORT_OK = qw(edistance);
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 =head1 NAME
 
@@ -67,7 +67,7 @@ sub new {
 =item dld
 
 2 argument: takes a scalar (string to compare against) and returns a scalar (the edit distance)
-3 argument: takes an int (maximum distance to record; default is 8), an array (of strings to compare against), and returns a hash such that $hash{$string_from_list} = $edit_distance 
+3 argument: takes an int (maximum distance to record; default is 8, 0 = unlimited), an array (of strings to compare against), and returns a hash such that $hash{$string_from_list} = $edit_distance 
 
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
 	print $tld->dld('Niel'); # prints 1
@@ -77,7 +77,7 @@ sub new {
 	my @names_list = ('Neil','Jack');
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
 	my %distance_hash = $tld->dld(@names_list); # pass a list, returns a hash
-	print $distance_hash{'Neil'}; #prints 1
+	print $distance_hash{'Niel'}; #prints 1
 	print $distance_hash{'Jack'}; #prints 4
 
 	
@@ -96,13 +96,13 @@ sub dld {
 	}
 	else {
 		if($arg1 !~ m/^\d+$/) {
-			$arg1 = 10;
+			$arg1 = 8;
 		}
 
 		foreach my $target ( @targets ) {
 			my $distance = edistance($source,$target);
 			
-			if($arg1 >= $distance) {
+			if($arg1 <= $distance || $arg1 == 0) {
 				$target_score{$target} = edistance($source,$target);
 			}
 		}
@@ -226,10 +226,10 @@ sub _null_or_empty {
 	return 1;
 }
 
-=back
-
 1;
 __END__
+
+=back
 
 =head1 AUTHOR
 

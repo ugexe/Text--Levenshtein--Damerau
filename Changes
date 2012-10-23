@@ -1,6 +1,6 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
-0.13 Tues Oct 23 00:45:31 2012
+0.14 Tues Oct 23 01:51:29 2012
 	- Fixed documentation formatting ruining source
 	- Sorry CPAN! :(
 
