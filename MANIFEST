@@ -1,3 +1,4 @@
+.gitignore
 Changes
 inc/Module/Install.pm
 inc/Module/Install/AutoManifest.pm
@@ -10,12 +11,14 @@ inc/Module/Install/Repository.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Text/Levenshtein/Damerau.pm
+Makefile
 Makefile.PL
 MANIFEST			This list of files
 MANIFEST.SKIP
 META.yml
 MYMETA.json
 MYMETA.yml
+pm_to_blib
 README
 t/00_compile.t
 t/01_imports.t

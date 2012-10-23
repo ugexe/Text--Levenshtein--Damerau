@@ -1,5 +1,5 @@
 {
-   "abstract" : "Damerau Levenshtein edit distance",
+   "abstract" : "unknown",
    "author" : [
       "ugexe <F<ug@skunkds.com>>"
    ],
@@ -47,5 +47,5 @@
          "url" : "https://github.com/ugexe/Text--Levenshtein--Damerau.git"
       }
    },
-   "version" : "0.14"
+   "version" : "0.15"
 }

@@ -11,7 +11,6 @@
 
 #   MakeMaker Parameters:
 
-#     ABSTRACT => q[Damerau Levenshtein edit distance]
 #     AUTHOR => [q[ugexe <F<ug@skunkds.com>>]]
 #     BUILD_REQUIRES => { Test::More=>q[0], Test::Base=>q[0], ExtUtils::MakeMaker=>q[6.36] }
 #     CONFIGURE_REQUIRES => {  }
@@ -20,7 +19,7 @@
 #     NAME => q[Text::Levenshtein::Damerau]
 #     NO_META => q[1]
 #     PREREQ_PM => { Test::Base=>q[0], Test::More=>q[0], List::Util=>q[0], ExtUtils::MakeMaker=>q[6.36] }
-#     VERSION => q[0.14]
+#     VERSION => q[0.15]
 #     VERSION_FROM => q[lib/Text/Levenshtein/Damerau.pm]
 #     dist => { PREOP=>q[$(PERL) -I. "-MModule::Install::Admin" -e "dist_preop(q($(DISTVNAME)))"] }
 #     realclean => { FILES=>q[MYMETA.yml] }
@@ -62,11 +61,11 @@ DIRFILESEP = /
 DFSEP = $(DIRFILESEP)
 NAME = Text::Levenshtein::Damerau
 NAME_SYM = Text_Levenshtein_Damerau
-VERSION = 0.14
+VERSION = 0.15
 VERSION_MACRO = VERSION
-VERSION_SYM = 0_14
+VERSION_SYM = 0_15
 DEFINE_VERSION = -D$(VERSION_MACRO)=\"$(VERSION)\"
-XS_VERSION = 0.14
+XS_VERSION = 0.15
 XS_VERSION_MACRO = XS_VERSION
 XS_DEFINE_VERSION = -D$(XS_VERSION_MACRO)=\"$(XS_VERSION)\"
 INST_ARCHLIB = blib/arch
@@ -260,7 +259,7 @@ RCS_LABEL = rcs -Nv$(VERSION_SYM): -q
 DIST_CP = best
 DIST_DEFAULT = tardist
 DISTNAME = Text-Levenshtein-Damerau
-DISTVNAME = Text-Levenshtein-Damerau-0.14
+DISTVNAME = Text-Levenshtein-Damerau-0.15
 
 
 # --- MakeMaker macro section:
@@ -773,8 +772,8 @@ testdb_static :: testdb_dynamic
 # --- MakeMaker ppd section:
 # Creates a PPD (Perl Package Description) for a binary distribution.
 ppd :
-	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.14">' > $(DISTNAME).ppd
-	$(NOECHO) $(ECHO) '    <ABSTRACT>Damerau Levenshtein edit distance</ABSTRACT>' >> $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '<SOFTPKG NAME="$(DISTNAME)" VERSION="0.15">' > $(DISTNAME).ppd
+	$(NOECHO) $(ECHO) '    <ABSTRACT></ABSTRACT>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <AUTHOR>ugexe &lt;F&lt;ug@skunkds.com&gt;&gt;</AUTHOR>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '    <IMPLEMENTATION>' >> $(DISTNAME).ppd
 	$(NOECHO) $(ECHO) '        <REQUIRE NAME="List::Util" />' >> $(DISTNAME).ppd
