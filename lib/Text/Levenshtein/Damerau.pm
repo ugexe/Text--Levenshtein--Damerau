@@ -6,7 +6,7 @@ use List::Util qw/reduce min/;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(edistance);
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 
 =head1 NAME
 
@@ -151,6 +151,8 @@ sub dld_best_match {
 		my $hash_ref = $self->dld($args);
 		return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b } keys %$hash_ref;
 	}
+
+	return undef;
 }
 
 =head2 $tld->dld_best_distance
@@ -172,7 +174,7 @@ sub dld_best_distance {
 	my $args = shift;
 
 	if( defined($args->{'list'}) ) {
-		my $best_match = $self->dld_best_match({ list => \@targets });
+		my $best_match = $self->dld_best_match({ list => $args->{'list'} });
 		return $self->dld( $best_match );
 	}
 

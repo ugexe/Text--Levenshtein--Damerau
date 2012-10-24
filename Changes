@@ -1,5 +1,10 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.18 Tues Oct 23 19:23:17 2012
+	- MORE TESTS
+	- fixed error with dld_best_distance
+	- I'm sure CPAN authors everywhere are laughing at the number of releases per day :)
+
 0.17 Tues Oct 23 19:23:17 2012
 	- Documentation clarifications
 
