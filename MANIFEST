@@ -25,4 +25,3 @@ t/01_imports.t
 t/02_dld.t
 t/03_dld_utf8.t
 t/pod.t
-t/pod_coverage.t

@@ -1,5 +1,12 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.17 Tues Oct 23 19:23:17 2012
+	- Documentation clarifications
+
+0.16 Tues Oct 23 19:23:17 2012
+	- Documentation updates
+	- Argument/return changes
+
 0.15 Tues Oct 23 13:20:42 2012
 	- Documentation updates
 

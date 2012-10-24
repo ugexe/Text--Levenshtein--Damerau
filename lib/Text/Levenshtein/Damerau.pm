@@ -6,7 +6,7 @@ use List::Util qw/reduce min/;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(edistance);
 
-our $VERSION = '0.15';
+our $VERSION = '0.17';
 
 =head1 NAME
 
@@ -26,14 +26,14 @@ C<Text::Levenshtein::Damerau> - Damerau Levenshtein edit distance
 	print $tld->dld($targets[0]);
 	# prints 1
 
-	my %tld_hash = $tld->dld(@targets);
-	print $tld_hash{'fuor'};
+	my $tld = $tld->dld({ list => \@targets });
+	print $tld->{'fuor'};
 	# prints 1
 
-	print $tld->dld_best_match(@targets);
+	print $tld->dld_best_match({ list => \@targets });
 	# prints fuor
 
-	print $tld->dld_best_distance(@targets);
+	print $tld->dld_best_distance({ list => \@targets });
  	# prints 1
 
 =head1 DESCRIPTION
@@ -44,7 +44,7 @@ Returns the true Damerau Levenshtein edit distance of strings with adjacent tran
 
 =head2 new
 
-Creates and returns a Text::Levenshtein::Damerau object. Takes a scalar with the text (source) you want to compare against. 
+Creates and returns a C<Text::Levenshtein::Damerau> object. Takes a scalar with the text (source) you want to compare against. 
 
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
 	# Creates a new Text::Levenshtein::Damerau object $tld
@@ -67,98 +67,116 @@ sub new {
 
 =head2 $tld->dld
 
-2 Arguments dld($string): takes a scalar (string to compare against)
+B<Scalar> Argument: Takes a string to compare with.
 
-Returns: a scalar (the edit distance)
+Returns: an integer representing the edit distance between the source and the passed argument.
 
-3 Arguments dld(8,$string): takes an int (maximum edit distance to record; default is 8, 0 = unlimited), and an array (of strings to compare against).
+B<Hashref> Argument: Takes a hashref containing
 
-Returns: a hash such that $hash{$string_from_list} = $edit_distance 
+=over 4
+
+=item * list => \@array (array ref of strings to compare with)
+
+=item * I<OPTIONAL> max_distance => $int (only return results with a $int distance or less)
+
+=back
+
+Returns: hashref with each word from the passed list as keys, and their edit distance (if less than max_distance, which is unlimited by default)
 
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
-	print $tld->dld('Niel'); # prints 1
+	print $tld->dld( 'Niel' ); # prints 1
 
 	#or if you want to check the distance of various items in a list
 
 	my @names_list = ('Neil','Jack');
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
-	my %distance_hash = $tld->dld(8, @names_list); # pass a list, returns a hash
-	print $distance_hash{'Niel'}; #prints 1
-	print $distance_hash{'Jack'}; #prints 4
+	my $d_ref = $tld->dld({ list=> \@names_list }); # pass a list, returns a hash
+	print $d_ref->{'Niel'}; #prints 1
+	print $d_ref->{'Jack'}; #prints 4
 
 	
 =cut
 
 sub dld {
 	my $self = shift;
-	my $arg1 = shift;
-	my @targets = @_;
+	my $args = shift;
+	my $target_score;
 
-	my $source = $self->{'source'};
-	my %target_score;
+	if( ref $args->{'list'} eq 'ARRAY' ) {
+		foreach my $target ( @{$args->{'list'}} ) {
+			my $distance = edistance($source,$target);
 
-	if(!$targets) {
-		return edistance($source,$arg1);
+			if( !defined($args->{max_distance}) ) {
+				$target_score->{$target} = edistance($self->{'source'},$target);
+			}
+			elsif( $args->{max_distance} !~ m/^\d+$/ ) {
+				$target_score->{$target} = edistance($self->{'source'},$target);
+			}
+			elsif( $distance <= $args->{max_distance} ) {
+				$target_score->{$target} = edistance($self->{'source'},$target);
+			}
+
+			print $target_score->{$target} . ' = ' . $target . "\n";
+		}
+		
+		return $target_score;
+
 	}
 	else {
-		if($arg1 !~ m/^\d+$/) {
-			$arg1 = 8;
-		}
-
-		foreach my $target ( @targets ) {
-			my $distance = edistance($source,$target);
-			
-			if($arg1 <= $distance || $arg1 == 0) {
-				$target_score{$target} = edistance($source,$target);
-			}
-		}
+		return edistance($self->{'source'},$args);
 	}
 
-	return %target_score;
+	return undef;
 }
 
 =head2 $tld->dld_best_match
 
-Arguments: an array of strings.
+Argument: an array reference of strings.
 
 Returns: the string with the smallest edit distance between the source and the array of strings passed.
 
 Takes distance of $tld source against every item in @targets, then returns the string of the best match
 
 	my @name_spellings = ('Niel','Neell','KNiel');
-	print $tld->dld_best_match( @name_spellings );
+	print $tld->dld_best_match({ list=> \@name_spellings });
 	# prints Niel
 
 =cut
 
 sub dld_best_match {
 	my $self = shift;
-	my @targets = @_;
-	my %hash = $self->dld(@targets);
+	my $args = shift;
 
-	return reduce { $hash{$a} < $hash{$b} ? $a : $b } keys %hash;
+	if( defined($args->{'list'}) ) {
+		my $hash_ref = $self->dld($args);
+		return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b } keys %$hash_ref;
+	}
 }
 
 =head2 $tld->dld_best_distance
 
-Arguments: an array of strings.
+Arguments: an array reference of strings.
 
-Returns: the smallest edit distance between the source and the array of strings passed.
+Returns: the smallest edit distance between the source and the array reference of strings passed.
 
 Takes distance of $tld source against every item in the passed array, then returns the smallest edit distance.
 
 	my @name_spellings = ('Niel','Neell','KNiel');
-	print $tld->dld_best_distance( @name_spellings );
+	print $tld->dld_best_distance({ list => \@name_spellings });
 	# prints 1
 
 =cut
 
 sub dld_best_distance {
 	my $self = shift;
-	my @targets = @_;
+	my $args = shift;
 
-	my $best_match = $self->dld_best_match(@targets);
-	return $self->dld( $best_match );
+	if( defined($args->{'list'}) ) {
+		my $best_match = $self->dld_best_match({ list => \@targets });
+		return $self->dld( $best_match );
+	}
+
+	return undef;
 }
 
 =head1 EXPORTABLE METHODS
@@ -255,6 +273,7 @@ __END__
 =over 4
 
 =item * L<https://github.com/ugexe/Text--Levenshtein--Damerau>
+
 =item * L<http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>
 
 =back

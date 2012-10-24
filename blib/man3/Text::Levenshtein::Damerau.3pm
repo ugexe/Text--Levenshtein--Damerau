@@ -146,14 +146,14 @@
 \&        print $tld\->dld($targets[0]);
 \&        # prints 1
 \&
-\&        my %tld_hash = $tld\->dld(@targets);
-\&        print $tld_hash{\*(Aqfuor\*(Aq};
+\&        my $tld = $tld\->dld({ list => \e@targets });
+\&        print $tld\->{\*(Aqfuor\*(Aq};
 \&        # prints 1
 \&
-\&        print $tld\->dld_best_match(@targets);
+\&        print $tld\->dld_best_match({ list => \e@targets });
 \&        # prints fuor
 \&
-\&        print $tld\->dld_best_distance(@targets);
+\&        print $tld\->dld_best_distance({ list => \e@targets });
 \&        # prints 1
 .Ve
 .SH "DESCRIPTION"
@@ -163,7 +163,7 @@ Returns the true Damerau Levenshtein edit distance of strings with adjacent tran
 .IX Header "CONSTRUCTOR"
 .SS "new"
 .IX Subsection "new"
-Creates and returns a Text::Levenshtein::Damerau object. Takes a scalar with the text (source) you want to compare against.
+Creates and returns a \f(CW\*(C`Text::Levenshtein::Damerau\*(C'\fR object. Takes a scalar with the text (source) you want to compare against.
 .PP
 .Vb 2
 \&        my $tld = Text::Levenshtein::Damerau\->new(\*(AqNeil\*(Aq);
@@ -174,30 +174,34 @@ Creates and returns a Text::Levenshtein::Damerau object. Takes a scalar with the
 .ie n .SS "$tld\->dld"
 .el .SS "\f(CW$tld\fP\->dld"
 .IX Subsection "$tld->dld"
-2 Arguments dld($string): takes a scalar (string to compare against)
+\&\fBScalar\fR Argument: Takes a string to compare with.
 .PP
-Returns: a scalar (the edit distance)
+Returns: an integer representing the edit distance between the source and the passed argument.
 .PP
-3 Arguments dld(8,$string): takes an int (maximum edit distance to record; default is 8, 0 = unlimited), and an array (of strings to compare against).
+\&\fBHashref\fR Argument: Takes a hashref containing
+.IP "\(bu" 4
+list => \e@array (array ref of strings to compare with)
+.IP "\(bu" 4
+\&\fI\s-1OPTIONAL\s0\fR max_distance => \f(CW$int\fR (only return results with a \f(CW$int\fR distance or less)
 .PP
-Returns: a hash such that \f(CW$hash\fR{$string_from_list} = \f(CW$edit_distance\fR
+Returns: hashref with each word from the passed list as keys, and their edit distance (if less than max_distance, which is unlimited by default)
 .PP
 .Vb 2
 \&        my $tld = Text::Levenshtein::Damerau\->new(\*(AqNeil\*(Aq);
-\&        print $tld\->dld(\*(AqNiel\*(Aq); # prints 1
+\&        print $tld\->dld( \*(AqNiel\*(Aq ); # prints 1
 \&
 \&        #or if you want to check the distance of various items in a list
 \&
 \&        my @names_list = (\*(AqNeil\*(Aq,\*(AqJack\*(Aq);
 \&        my $tld = Text::Levenshtein::Damerau\->new(\*(AqNeil\*(Aq);
-\&        my %distance_hash = $tld\->dld(8, @names_list); # pass a list, returns a hash
-\&        print $distance_hash{\*(AqNiel\*(Aq}; #prints 1
-\&        print $distance_hash{\*(AqJack\*(Aq}; #prints 4
+\&        my $d_ref = $tld\->dld({ list=> \e@names_list }); # pass a list, returns a hash
+\&        print $d_ref\->{\*(AqNiel\*(Aq}; #prints 1
+\&        print $d_ref\->{\*(AqJack\*(Aq}; #prints 4
 .Ve
 .ie n .SS "$tld\->dld_best_match"
 .el .SS "\f(CW$tld\fP\->dld_best_match"
 .IX Subsection "$tld->dld_best_match"
-Arguments: an array of strings.
+Argument: an array reference of strings.
 .PP
 Returns: the string with the smallest edit distance between the source and the array of strings passed.
 .PP
@@ -205,21 +209,21 @@ Takes distance of \f(CW$tld\fR source against every item in \f(CW@targets\fR, th
 .PP
 .Vb 3
 \&        my @name_spellings = (\*(AqNiel\*(Aq,\*(AqNeell\*(Aq,\*(AqKNiel\*(Aq);
-\&        print $tld\->dld_best_match( @name_spellings );
+\&        print $tld\->dld_best_match({ list=> \e@name_spellings });
 \&        # prints Niel
 .Ve
 .ie n .SS "$tld\->dld_best_distance"
 .el .SS "\f(CW$tld\fP\->dld_best_distance"
 .IX Subsection "$tld->dld_best_distance"
-Arguments: an array of strings.
+Arguments: an array reference of strings.
 .PP
-Returns: the smallest edit distance between the source and the array of strings passed.
+Returns: the smallest edit distance between the source and the array reference of strings passed.
 .PP
 Takes distance of \f(CW$tld\fR source against every item in the passed array, then returns the smallest edit distance.
 .PP
 .Vb 3
 \&        my @name_spellings = (\*(AqNiel\*(Aq,\*(AqNeell\*(Aq,\*(AqKNiel\*(Aq);
-\&        print $tld\->dld_best_distance( @name_spellings );
+\&        print $tld\->dld_best_distance({ list => \e@name_spellings });
 \&        # prints 1
 .Ve
 .SH "EXPORTABLE METHODS"
@@ -241,7 +245,8 @@ Function to take the edit distance between a source and target string. Contains 
 .IX Header "SEE ALSO"
 .IP "\(bu" 4
 <https://github.com/ugexe/Text\*(--Levenshtein\-\-Damerau>
-=item * <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>
+.IP "\(bu" 4
+<http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>
 .SH "AUTHOR"
 .IX Header "AUTHOR"
 ugexe <\fIug@skunkds.com\fR>
