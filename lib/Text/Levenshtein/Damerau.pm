@@ -1,85 +1,167 @@
 ##############################################################################
 #      $URL: https://github.com/ugexe/Text--Levenshtein--Damerau $
-#     $Date: 2012-10-25 00:02:39 -0500 (Thu, 25 Oct 2012) $
+#     $Date: 2012-10-25 20:57:51 -0500 (Thu, 25 Oct 2012) $
 #   $Author: ugexe $
-# $Revision: 4200 $
+# $Revision: 4210 $
 ##############################################################################
 
 package Text::Levenshtein::Damerau;
 use utf8;
 use List::Util qw/reduce min/;
-use strict;
-use warnings;
-use Exporter qw( import );
+use Exporter qw/import/;
+our @EXPORT_OK = qw/edistance pp_edistance c_edistance/;
 
-our @EXPORT_OK = qw( edistance );
-our $VERSION   = '0.19';
+our $VERSION = '0.20';
 
-sub new {
-    my $class = shift;
-    my $self  = {};
+eval {
+    require Inline;
+    Inline->import( 	C => Config => BUILD_NOISY => 1 );
+    Inline->import( C => <<' EOC');
 
-    $self->{'source'} = shift;
-
-    bless( $self, $class );
-
-    return $self;
-}
-
-sub dld {
-    my $self = shift;
-    my $args = shift;
-
-    if ( !ref $args ) {
-        return edistance( $self->{'source'}, $args );
-    }
-    elsif ( ref $args->{'list'} eq ref [] ) {
-        my $target_score;
-        foreach my $target ( @{ $args->{'list'} } ) {
-            my $distance = edistance( $self->{'source'}, $target );
-
-            if ( !defined( $args->{max_distance} ) ) {
-                $target_score->{$target} =
-                  edistance( $self->{'source'}, $target );
-            }
-            elsif ( $args->{max_distance} !~ m/^\d+$/xms ) {
-                $target_score->{$target} =
-                  edistance( $self->{'source'}, $target );
-            }
-            elsif ( $distance <= $args->{max_distance} ) {
-                $target_score->{$target} =
-                  edistance( $self->{'source'}, $target );
-            }
+    int _is_empty (char * text) { 
+        if ( strcmp(text, "") == 0 ) {
+            return 1; 
         }
 
-        return $target_score;
-
+        return 0; 
     }
 
-}
+    int _inline_c_edistance (AV* arraySource, AV* arrayTarget) { 
+            int i;
+        int j;
+            int lenSource = av_len(arraySource) ? av_len(arraySource) + 1 : 0;
+            int lenTarget = av_len(arrayTarget) ? av_len(arrayTarget) + 1 : 0;
+            int areEqual = 1;
+        int INF = 1;
 
-sub dld_best_match {
-    my $self = shift;
-    my $args = shift;
+            int arrJoined [lenSource + lenTarget];
+        int arrSource [ lenSource ];
+        int arrTarget [ lenTarget ];
 
-    if ( defined( $args->{'list'} ) ) {
-        my $hash_ref = $self->dld($args);
-        return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b }
-        keys %{$hash_ref};
+            for (i=1; i <= lenSource; i++) {
+                SV** elem = av_fetch(arraySource, i - 1, 0);
+                int retval = SvNV(*elem);
+
+                if (elem != NULL) {
+                arrJoined[ INF ] = retval;
+                        arrSource[ i ] = retval;
+                INF++;
+                    
+                    if (i <= lenTarget && areEqual == 1) {
+                    SV** elem2 = av_fetch(arrayTarget, i - 1, 0);
+                    int retval2 = SvNV(*elem2);
+                    if (elem2 != NULL && retval2 != NULL) {
+                                    if (retval2 != retval) {
+                            areEqual = 0;
+                                    }
+                        }
+                }
+                else {
+                        areEqual = 0;
+                };
+                }
+            }
+            for (i=1; i <= lenTarget; i++) {
+                SV** elem = av_fetch(arrayTarget, i - 1, 0);
+            int retval = SvNV(*elem);
+                if (elem != NULL) {
+                    arrJoined[ INF ] = retval;
+                arrTarget[ i ] = retval;
+                INF++;
+                }
+            }
+
+        if ( lenSource == 0) { 
+            if ( lenTarget == 0) { 
+                return 0; 
+            } 
+            else { 
+                return lenTarget; 
+            } 
+        } 
+        else if ( lenTarget == 0) { 
+            return lenSource; 
+        } 
+        else if ( lenSource == lenTarget && areEqual == 1 ) { 
+            return 0; 
+        }
+
+        int H [INF][INF]; 
+        
+        H[0][0] = INF;
+
+        for (i = 0; i <= lenSource; i++) { 
+            H[i + 1][1] = i; 
+            H[i + 1][0] = INF; 
+        } 
+        for (j = 0; j <= lenTarget; j++) { 
+            H[1][j + 1] = j; 
+            H[0][j + 1] = INF; 
+        }
+
+        int sd[30000]; 
+
+        i = 0;
+        for (i = 1; i < INF; i++) { 
+            sd[ arrJoined[ i ] ] = 0; 
+        } 
+
+        for (i = 1; i <= lenSource; i++) { 
+            int DB = 0;
+
+            for (j = 1; j <= lenTarget; j++) { 
+                int i1 = sd[ arrTarget[j]]; 
+                int j1 = DB;
+
+                if( arrSource[i] == arrTarget[j] ) { 
+                    H[i + 1][j + 1] = H[i][j]; 
+                    DB = j; 
+                } 
+                else { 
+                    H[i + 1][j + 1] = _minc(H[i][j], _minc(H[i + 1][j], H[i][j + 1])) + 1; 
+                } 
+                
+                H[i + 1][j + 1] = _minc(H[i + 1][j + 1], H[i1][j1] + (i - i1 - 1) + 1 + (j - j1 - 1));
+            }
+
+            sd[ arrSource[i] ] = i; 
+        }
+
+        return H[lenSource + 1][lenTarget + 1];
     }
-}
 
-sub dld_best_distance {
-    my $self = shift;
-    my $args = shift;
-
-    if ( defined( $args->{'list'} ) ) {
-        my $best_match = $self->dld_best_match( { list => $args->{'list'} } );
-        return $self->dld($best_match);
+    int _minc (int x, int m ) { 
+        if (x < m) { 
+            return x; 
+        } 
+        else { 
+            return m; 
+        } 
     }
+
+ EOC
+};
+
+# Check if require Inline errored. If it did, use the Pure Perl algorithm. Otherwise use the Inline::C algorithm.
+if ($@) {
+    *edistance = \&pp_edistance;
+}
+else {
+    *edistance = \&c_edistance;
 }
 
-sub edistance {
+sub c_edistance {
+
+    # Wrapper for C edistance function
+    my $str1 = shift;
+    my $str2 = shift;
+    my @arr1 = unpack 'U*', $str1;
+    my @arr2 = unpack 'U*', $str2;
+
+    return _inline_c_edistance( \@arr1, \@arr2 );
+}
+
+sub pp_edistance {
 
     # Does the actual calculation on a pair of strings
     my ( $source, $target ) = @_;
@@ -150,6 +232,70 @@ sub edistance {
     return $H{ $m + 1 }{ $n + 1 };
 }
 
+sub new {
+    my $class = shift;
+    my $self  = {};
+
+    $self->{'source'} = shift;
+
+    bless( $self, $class );
+
+    return $self;
+}
+
+sub dld {
+    my $self = shift;
+    my $args = shift;
+
+    if ( !ref $args ) {
+        return edistance( $self->{'source'}, $args );
+    }
+    elsif ( ref $args->{'list'} eq ref [] ) {
+        my $target_score;
+        foreach my $target ( @{ $args->{'list'} } ) {
+            my $distance = edistance( $self->{'source'}, $target );
+
+            if ( !defined( $args->{max_distance} ) ) {
+                $target_score->{$target} =
+                  edistance( $self->{'source'}, $target );
+            }
+            elsif ( $args->{max_distance} !~ m/^\d+$/xms ) {
+                $target_score->{$target} =
+                  edistance( $self->{'source'}, $target );
+            }
+            elsif ( $distance <= $args->{max_distance} ) {
+                $target_score->{$target} =
+                  edistance( $self->{'source'}, $target );
+            }
+        }
+
+        return $target_score;
+
+    }
+
+}
+
+sub dld_best_match {
+    my $self = shift;
+    my $args = shift;
+
+    if ( defined( $args->{'list'} ) ) {
+        my $hash_ref = $self->dld($args);
+        return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b }
+        keys %{$hash_ref};
+    }
+}
+
+sub dld_best_distance {
+    my $self = shift;
+    my $args = shift;
+
+    if ( defined( $args->{'list'} ) ) {
+        my $best_match = $self->dld_best_match( { list => $args->{'list'} } );
+        return $self->dld($best_match);
+    }
+}
+
 sub _null_or_empty {
     my $s = shift;
 
@@ -161,6 +307,7 @@ sub _null_or_empty {
 }
 
 1;
+
 __END__
 
 =head1 NAME
@@ -194,6 +341,8 @@ C<Text::Levenshtein::Damerau> - Damerau Levenshtein edit distance
 =head1 DESCRIPTION
 
 Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions.
+
+Will use L<Inline::C> methods for speed increases if Inline::C and a proper C compiler are installed. Otherwise it falls back to a slower, Pure Perl implementation.
 
 =head1 CONSTRUCTOR
 
@@ -267,11 +416,19 @@ Arguments: source string and target string.
 
 Returns: scalar containing int that represents the edit distance between the two argument.
 
-Function to take the edit distance between a source and target string. Contains the actual algorithm implementation 
+Function to take the edit distance between a source and target string. Contains the actual algorithm implementation. Automatically uses c_edistance of possible, otherwise it falls back to pp_edistance.
 
 	use Text::Levenshtein::Damerau qw/edistance/;
 	print edistance('Neil','Niel');
 	# prints 1
+
+=head2 pp_edistance
+
+B<SEE edistance> Pure Perl implementation of edistance.
+
+=head2 c_edistance
+
+B<SEE edistance> Wrapper for Inline::C implementation of edistance. Much faster than edistance, but requires Inline::C and a C compiler.
 
 =head1 SEE ALSO
 
@@ -289,6 +446,10 @@ Please report bugs to:
 
 L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau>
 
+=head1 NOTES
+
+For informational and learning purposes the L<Inline::C> Damerau Levenshtein algorithm implementated mirrors the Perl implementation as much as possible.
+
 =head1 AUTHOR
 
 ugexe <F<ug@skunkds.com>>
@@ -298,3 +459,5 @@ ugexe <F<ug@skunkds.com>>
 This library is free software; you can redistribute it and/or modify it under the same terms as Perl itself.
 
 =cut
+
+

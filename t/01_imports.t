@@ -3,4 +3,4 @@ use warnings;
 
 use Test::More tests => 1;
 
-BEGIN { use_ok 'Text::Levenshtein::Damerau', qw/edistance/ }
+BEGIN { use_ok 'Text::Levenshtein::Damerau', qw/edistance pp_edistance/ }

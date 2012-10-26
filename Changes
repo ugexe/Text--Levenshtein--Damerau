@@ -1,5 +1,11 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.20 Thu Oct 25 20:57:51 2012
+	- Damerau Levenshtein algorithm implemented in Inline::C
+	- c_edistance added; Wrapper to use _inline_c_edistance C function
+	- pp_edistance; original edistance, Pure Perl
+	- edistance now automatically uses c_edistance if possible, otherwise falls back to using pp_edistance
+
 0.19 Thu Oct 25 00:02:39 2012
 	- Test consolidation; All tests use Test::More, removed Test::Base tests
 	- Passes use strict by checking dld if its a reference
