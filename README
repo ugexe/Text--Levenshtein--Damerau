@@ -1,5 +1,5 @@
 NAME
-    "Text::Levenshtein::Damerau" - Damerau Levenshtein edit distance
+    "Text::Levenshtein::Damerau" - Damerau Levenshtein edit distance.
 
 SYNOPSIS
             use Text::Levenshtein::Damerau;
@@ -24,13 +24,20 @@ SYNOPSIS
             print $tld->dld_best_distance({ list => \@targets });
             # prints 1
 
+
+            # or even more simply
+            use Text::Levenshtein::Damerau qw/edistance/;
+            use warnings;
+            use strict;
+        
+            print edistance('Neil','Niel');
+            # prints 1
+
 DESCRIPTION
     Returns the true Damerau Levenshtein edit distance of strings with
-    adjacent transpositions.
-
-    Will use Inline::C methods for speed increases if Inline::C and a proper
-    C compiler are installed. Otherwise it falls back to a slower, Pure Perl
-    implementation.
+    adjacent transpositions. Defaults to using Pure Perl
+    Text::Levenshtein::Damerau::PP, but has an XS addon
+    Text::Levenshtein::Damerau::XS for massive speed imrovements.
 
 CONSTRUCTOR
   new
@@ -102,20 +109,16 @@ EXPORTABLE METHODS
     Returns: scalar containing int that represents the edit distance between
     the two argument.
 
-    Function to take the edit distance between a source and target string.
-    Contains the actual algorithm implementation. Automatically uses
-    c_edistance of possible, otherwise it falls back to pp_edistance.
+    Wrapper function to take the edit distance between a source and target
+    string. It will attempt to use, in order:
+
+    *   Text::Levenshtein::Damerau::XS xs_edistance
+
+    *   Text::Levenshtein::Damerau::PP pp_edistance
 
             use Text::Levenshtein::Damerau qw/edistance/;
             print edistance('Neil','Niel');
             # prints 1
-
-  pp_edistance
-    SEE edistance Pure Perl implementation of edistance.
-
-  c_edistance
-    SEE edistance Wrapper for Inline::C implementation of edistance. Much
-    faster than edistance, but requires Inline::C and a C compiler.
 
 SEE ALSO
     *   <https://github.com/ugexe/Text--Levenshtein--Damerau>
@@ -127,11 +130,6 @@ BUGS
 
     <https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Dame
     rau>
-
-NOTES
-    For informational and learning purposes the Inline::C Damerau
-    Levenshtein algorithm implementated mirrors the Perl implementation as
-    much as possible.
 
 AUTHOR
     ugexe <ug@skunkds.com>

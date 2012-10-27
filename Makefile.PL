@@ -11,17 +11,7 @@ auto_license;
 
 test_requires 'Test::More';
 requires 'List::Util';
-recommends 'Inline::C' => '0'
+recommends 'Text::Levenshtein::Damerau::XS';
 
  
-eval {
-    require Inline;
-    Inline->import( 	C => Config => BUILD_NOISY => 1 );
-};
-
-if($@) {
-    WriteAll();
-}
-else {
-    WriteAll( inline => 1 );
-}
+WriteAll();
