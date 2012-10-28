@@ -1,11 +1,10 @@
 package Text::Levenshtein::Damerau::PP;
 use strict;
 use utf8;
-use List::Util qw/reduce min/;
 use Exporter qw/import/;
 our @EXPORT_OK = qw/pp_edistance/;
 
-our $VERSION = '0.10';
+our $VERSION = '0.13';
 
 sub pp_edistance {
 
@@ -65,10 +64,10 @@ sub pp_edistance {
             }
             else {
                 $H{ $i + 1 }{ $j + 1 } =
-                  min( $H{$i}{$j}, $H{ $i + 1 }{$j}, $H{$i}{ $j + 1 } ) + 1;
+                  _min( $H{$i}{$j}, $H{ $i + 1 }{$j}, $H{$i}{ $j + 1 } ) + 1;
             }
 
-            $H{ $i + 1 }{ $j + 1 } = min( $H{ $i + 1 }{ $j + 1 },
+            $H{ $i + 1 }{ $j + 1 } = _min( $H{ $i + 1 }{ $j + 1 },
                 $H{$i1}{$j1} + ( $i - $i1 - 1 ) + 1 + ( $j - $j1 - 1 ) );
         }
 
@@ -76,6 +75,15 @@ sub pp_edistance {
     }
 
     return $H{ $m + 1 }{ $n + 1 };
+}
+
+sub _min {
+    my $min = shift;
+    return $min if not @_;
+
+    my $next = shift;
+    unshift @_, $min < $next ? $min : $next;
+    goto &_min;
 }
 
 sub _null_or_empty {
@@ -91,6 +99,8 @@ sub _null_or_empty {
 1;
 
 __END__
+
+=encoding utf8
 
 =head1 NAME
 
@@ -109,7 +119,7 @@ C<Text::Levenshtein::Damerau::PP> - Pure Perl Damerau Levenshtein edit distance
 
 
 	# Using this module directly
-	use Text::Levenshtein::Damerau::PP qw/pp_distance/;
+	use Text::Levenshtein::Damerau::PP qw/pp_edistance/;
 	use warnings;
 	use strict;
 
@@ -118,7 +128,11 @@ C<Text::Levenshtein::Damerau::PP> - Pure Perl Damerau Levenshtein edit distance
 
 =head1 DESCRIPTION
 
-Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions. Pure Perl implementation.
+Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions. Pure Perl implementation. Works correctly with utf8.
+
+	use utf8;
+	pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓤⓡ'), 
+	# prints 1
 
 =head1 METHODS
 
@@ -152,7 +166,7 @@ L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau>
 
 =head1 AUTHOR
 
-ugexe <F<ug@skunkds.com>>
+Nick Logan ugexe <F<ug@skunkds.com>>
 
 =head1 LICENSE AND COPYRIGHT
 

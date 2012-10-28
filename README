@@ -37,7 +37,14 @@ DESCRIPTION
     Returns the true Damerau Levenshtein edit distance of strings with
     adjacent transpositions. Defaults to using Pure Perl
     Text::Levenshtein::Damerau::PP, but has an XS addon
-    Text::Levenshtein::Damerau::XS for massive speed imrovements.
+    Text::Levenshtein::Damerau::XS for massive speed imrovements. Works
+    correctly with utf if backend supports it; known to work with
+    Text::Levenshtein::Damerau::PP and Text::Levenshtein::Damerau::XS.
+
+            use utf8;
+            my $tld = Text::Levenshtein::Damerau->new('ⓕⓞⓤⓡ');
+            print $tld->dld('ⓕⓤⓞⓡ');
+            # prints 1
 
 CONSTRUCTOR
   new
@@ -61,16 +68,29 @@ METHODS
     *   *OPTIONAL* max_distance => $int (only return results with a $int
         distance or less)
 
+    *   *OPTIONAL* backend => 'Some::Module' Any module that will take 2
+        arguments and returns an int.
+
+                # Override defaults and use Text::Levenshtein::Damerau::PP's pp_edistance()
+                $tld->dld({ list=> \@list, backend => 'Text::Levenshtein::Damerau::PP::pp_edistance');
+
+                # Override defaults and use Text::Levenshtein::Damerau::XS's xs_edistance()
+                use Text::Levenshtein::Damerau;
+                requires Text::Levenshtein::Damerau::XS;
+                ...
+                $tld->dld({ list=> \@list, backend => 'Text::Levenshtein::Damerau::XS::xs_edistance');
+
     Returns: hashref with each word from the passed list as keys, and their
     edit distance (if less than max_distance, which is unlimited by
     default).
 
             my $tld = Text::Levenshtein::Damerau->new('Neil');
-            print $tld->dld( 'Niel' ); # prints 1
+            print $tld->dld( 'Niel' );
+            # prints 1
 
             #or if you want to check the distance of various items in a list
 
-            my @names_list = ('Neil','Jack');
+            my @names_list = ('Niel','Jack');
             my $tld = Text::Levenshtein::Damerau->new('Neil');
             my $d_ref = $tld->dld({ list=> \@names_list }); # pass a list, returns a hash
             print $d_ref->{'Niel'}; #prints 1
@@ -85,6 +105,7 @@ METHODS
     Takes distance of $tld source against every item in @targets, then
     returns the string of the best match.
 
+            my $tld = Text::Levenshtein::Damerau->new('Neil');
             my @name_spellings = ('Niel','Neell','KNiel');
             print $tld->dld_best_match({ list=> \@name_spellings });
             # prints Niel
@@ -98,6 +119,7 @@ METHODS
     Takes distance of $tld source against every item in the passed array,
     then returns the smallest edit distance.
 
+            my $tld = Text::Levenshtein::Damerau->new('Neil');
             my @name_spellings = ('Niel','Neell','KNiel');
             print $tld->dld_best_distance({ list => \@name_spellings });
             # prints 1
@@ -121,9 +143,12 @@ EXPORTABLE METHODS
             # prints 1
 
 SEE ALSO
-    *   <https://github.com/ugexe/Text--Levenshtein--Damerau>
+    *   <https://github.com/ugexe/Text--Levenshtein--Damerau> *repository*
 
     *   <http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance>
+        *damerau levenshtein explaination*
+
+    *   Text::Fuzzy *regular levenshtein distance*
 
 BUGS
     Please report bugs to:
@@ -132,7 +157,7 @@ BUGS
     rau>
 
 AUTHOR
-    ugexe <ug@skunkds.com>
+    Nick Logan ugexe <ug@skunkds.com>
 
 LICENSE AND COPYRIGHT
     This library is free software; you can redistribute it and/or modify it

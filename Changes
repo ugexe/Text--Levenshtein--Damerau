@@ -1,5 +1,20 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.27 Sat Oct 27 20:33:14 2012
+	- Modified _set_backend to test passed module::function for valid return value, ignoring the change request on failure.
+
+0.26 Sat Oct 27 18:29:57 2012
+	- Fixed pod utf8 stuff
+
+0.25 Sat Oct 27 15:58:22 2012
+	- Document updates
+
+0.24 Sat Oct 27 02:40:38 2012
+	- Removed List::Util from ::PP
+	- Fixed dld_best_match so it correctly passed the entire argument hash ref
+	- Allow changing of backend at run time via dld
+	- Document updates
+
 0.23 Fri Oct 26 17:39:51 2012
 	- Moved edistance to ::PP sub module. Adding a ::XS distro engine to do the heavy lifting of edistance in C if available.
 	- Lots of refactoring 

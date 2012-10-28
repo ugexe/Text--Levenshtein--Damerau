@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 14;
+use Test::More tests => 15;
 use Text::Levenshtein::Damerau;
 
 my $tld = Text::Levenshtein::Damerau->new('four');
@@ -35,4 +35,7 @@ is( $tld_utf8->dld('ⓕⓧⓧⓡ'), 2, 'test helper substitution (utf8)');
 #Test utf8 array reference argument
 my @list_utf8 = ('ⓕⓞⓤⓡ','ⓕⓞⓡ','ⓕⓤⓞⓡ','');
 is_deeply($tld_utf8->dld({ list => \@list_utf8 }), { 'ⓕⓞⓤⓡ' => 0, 'ⓕⓞⓡ' => 1, 'ⓕⓤⓞⓡ' => 1, '' => 4 }, 'test dld(\@array_ref) (utf8)');
+
+#Test passing an invalid backend. Should fallback to default ::PP engine and continue as normal.
+is_deeply($tld_utf8->dld({ backend => 'FAKE::Module::TEST::function', list => \@list_utf8 }), { 'ⓕⓞⓤⓡ' => 0, 'ⓕⓞⓡ' => 1, 'ⓕⓤⓞⓡ' => 1, '' => 4 }, 'test dld(\@array_ref) (utf8)');
 
