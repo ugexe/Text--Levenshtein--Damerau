@@ -1,5 +1,11 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.29 Sun Oct 28 02:08:19 2012
+	- Hardcoded Makefile.PL values
+
+0.28 Sat Oct 27 20:33:14 2012
+	- Document updates
+
 0.27 Sat Oct 27 20:33:14 2012
 	- Modified _set_backend to test passed module::function for valid return value, ignoring the change request on failure.
 

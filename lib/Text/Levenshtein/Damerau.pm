@@ -6,7 +6,7 @@ use List::Util qw/reduce/;
 use Exporter qw/import/;
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION = '0.27';
+our $VERSION = '0.29';
 
 
 # To XS or not to XS...
@@ -22,38 +22,14 @@ else {
 }
 
 
-
 sub new {
     my $class = shift;
     my $self  = {};
 
     $self->{'source'} = shift;
-    
-
     bless( $self, $class );
 
     return $self;
-}
-
-sub _set_backend {
-  my $be = shift;
-  my $module = $be;
-  $module =~ s/^(.*)::.*?$/$1/g;
-
-  # Does the module exist?
-  eval "require $module";
-  unless($@) {
-       # Does the module have such a function?
-  	eval "defined &$be";
-	unless($@) {
-		# Does the function return a number if we give it 2 strings?
-		eval "die unless(&$be('four','fuor') =~ /[-+]?[0-9]*\.?[0-9]+/)";
-		unless($@) {
-			# We welcome out new edistance overlord
-	  		*edistance = \&$be;
-		}
-	}
-  }
 }
 
 sub dld {
@@ -69,7 +45,6 @@ sub dld {
         if( defined($args->{'backend'}) ) {
 	     _set_backend($args->{'backend'});
         }
-
 	
         foreach my $target ( @{ $args->{'list'} } ) {
             my $distance = edistance( $self->{'source'}, $target );
@@ -100,6 +75,8 @@ sub dld_best_match {
 
     if ( defined( $args->{'list'} ) ) {
         my $hash_ref = $self->dld($args);
+
+	 #Get the hashref key with the smallest value
         return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b }
         keys %{$hash_ref};
     }
@@ -110,9 +87,29 @@ sub dld_best_distance {
     my $args = shift;
 
     if ( defined( $args->{'list'} ) ) {
-        my $best_match = $self->dld_best_match($args);
-        return $self->dld($best_match);
+        return $self->dld( $self->dld_best_match($args) );
     }
+}
+
+sub _set_backend {
+  my $be = shift;
+  my $module = $be;
+  $module =~ s/^(.*)::.*?$/$1/g;
+
+  # Does the module exist?
+  eval "require $module";
+  unless($@) {
+       # Does the module have such a function?
+  	eval "defined &$be";
+	unless($@) {
+		# Does the function return a number if we give it 2 strings?
+		eval "die unless(&$be('four','fuor') =~ /[-+]?[0-9]*\.?[0-9]+/)";
+		unless($@) {
+			# We welcome our new edistance overlord
+	  		*edistance = \&$be;
+		}
+	}
+  }
 }
 
 1;
@@ -160,7 +157,9 @@ C<Text::Levenshtein::Damerau> - Damerau Levenshtein edit distance.
 
 =head1 DESCRIPTION
 
-Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions. Defaults to using Pure Perl L<Text::Levenshtein::Damerau::PP>, but has an XS addon L<Text::Levenshtein::Damerau::XS> for massive speed imrovements. Works correctly with utf if backend supports it; known to work with C<Text::Levenshtein::Damerau::PP> and C<Text::Levenshtein::Damerau::XS>.
+Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions. Useful for fuzzy matching, DNA variation metrics, and fraud detection.
+
+Defaults to using Pure Perl L<Text::Levenshtein::Damerau::PP>, but has an XS addon L<Text::Levenshtein::Damerau::XS> for massive speed imrovements. Works correctly with utf8 if backend supports it; known to work with C<Text::Levenshtein::Damerau::PP> and C<Text::Levenshtein::Damerau::XS>.
 
 	use utf8;
 	my $tld = Text::Levenshtein::Damerau->new('ⓕⓞⓤⓡ');
@@ -251,7 +250,7 @@ Takes distance of $tld source against every item in the passed array, then retur
 
 Arguments: source string and target string.
 
-Returns: scalar containing int that represents the edit distance between the two argument.
+Returns: scalar containing int that represents the edit distance between the two strings.
 
 Wrapper function to take the edit distance between a source and target string. It will attempt to use, in order: 
 

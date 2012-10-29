@@ -35,11 +35,13 @@ SYNOPSIS
 
 DESCRIPTION
     Returns the true Damerau Levenshtein edit distance of strings with
-    adjacent transpositions. Defaults to using Pure Perl
-    Text::Levenshtein::Damerau::PP, but has an XS addon
-    Text::Levenshtein::Damerau::XS for massive speed imrovements. Works
-    correctly with utf if backend supports it; known to work with
-    Text::Levenshtein::Damerau::PP and Text::Levenshtein::Damerau::XS.
+    adjacent transpositions. Useful for fuzzy matching, DNA variation
+    metrics, and fraud detection.
+
+    Defaults to using Pure Perl Text::Levenshtein::Damerau::PP, but has an
+    XS addon Text::Levenshtein::Damerau::XS for massive speed imrovements.
+    Works correctly with utf8 if backend supports it; known to work with
+    "Text::Levenshtein::Damerau::PP" and "Text::Levenshtein::Damerau::XS".
 
             use utf8;
             my $tld = Text::Levenshtein::Damerau->new('ⓕⓞⓤⓡ');
@@ -65,11 +67,13 @@ METHODS
 
     *   list => \@array (array ref of strings to compare with)
 
-    *   *OPTIONAL* max_distance => $int (only return results with a $int
-        distance or less)
+    *   *OPTIONAL* max_distance => $int (only return results with $int
+        distance or less).
 
-    *   *OPTIONAL* backend => 'Some::Module' Any module that will take 2
-        arguments and returns an int.
+    *   *OPTIONAL* backend => 'Some::Module::its_function' Any module that
+        will take 2 arguments and returns an int. If the module fails to
+        load, the function doesn't exist, or the function doesn't return a
+        number when passed 2 strings, then "backend" remains unchanged.
 
                 # Override defaults and use Text::Levenshtein::Damerau::PP's pp_edistance()
                 $tld->dld({ list=> \@list, backend => 'Text::Levenshtein::Damerau::PP::pp_edistance');
@@ -129,7 +133,7 @@ EXPORTABLE METHODS
     Arguments: source string and target string.
 
     Returns: scalar containing int that represents the edit distance between
-    the two argument.
+    the two strings.
 
     Wrapper function to take the edit distance between a source and target
     string. It will attempt to use, in order:
@@ -157,7 +161,7 @@ BUGS
     rau>
 
 AUTHOR
-    Nick Logan ugexe <ug@skunkds.com>
+    Nick Logan (ugexe) <ug@skunkds.com>
 
 LICENSE AND COPYRIGHT
     This library is free software; you can redistribute it and/or modify it
