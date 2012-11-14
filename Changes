@@ -1,5 +1,8 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.30 Wed Nov 13 17:34:19 2012
+	- max distance added to stop calculations at a certain distance
+
 0.29 Sun Oct 28 02:08:19 2012
 	- Hardcoded Makefile.PL values
 

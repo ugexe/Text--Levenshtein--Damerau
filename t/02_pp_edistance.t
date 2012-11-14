@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 15;
+use Test::More tests => 16;
 use Text::Levenshtein::Damerau::PP qw/pp_edistance/;
 
 # We test pp_edistance before edistance because edistance might be using ::XS backend and fail
@@ -16,6 +16,7 @@ is( pp_edistance('four',''), 	4, 'test pp_edistance target empty');
 is( pp_edistance('','four'), 	4, 'test pp_edistance source empty');
 is( pp_edistance('',''), 		0, 'test pp_edistance source & target empty');
 is( pp_edistance('11','1'), 	1, 'test pp_edistance source & target empty');
+is( pp_edistance('xxx','x',1),    -1, 'test pp_edistance max distance setting');
 
 # Test some utf8
 use utf8;

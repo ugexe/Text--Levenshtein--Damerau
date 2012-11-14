@@ -6,7 +6,7 @@ use List::Util qw/reduce/;
 use Exporter qw/import/;
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION = '0.29';
+our $VERSION = '0.30';
 
 
 # To XS or not to XS...
@@ -27,6 +27,7 @@ sub new {
     my $self  = {};
 
     $self->{'source'} = shift;
+    $self->{'max_distance'} = 0;
     bless( $self, $class );
 
     return $self;
@@ -37,7 +38,7 @@ sub dld {
     my $args = shift;
 
     if ( !ref $args ) {
-        return edistance( $self->{'source'}, $args );
+        return edistance( $self->{'source'}, $args, );
     }
     elsif ( ref $args->{'list'} eq ref [] ) {
         my $target_score;
@@ -47,20 +48,8 @@ sub dld {
         }
 	
         foreach my $target ( @{ $args->{'list'} } ) {
-            my $distance = edistance( $self->{'source'}, $target );
-
-            if ( !defined( $args->{max_distance} ) ) {
-                $target_score->{$target} =
-                  edistance( $self->{'source'}, $target );
-            }
-            elsif ( $args->{max_distance} !~ m/^\d+$/xms ) {
-                $target_score->{$target} =
-                  edistance( $self->{'source'}, $target );
-            }
-            elsif ( $distance <= $args->{max_distance} ) {
-                $target_score->{$target} =
-                  edistance( $self->{'source'}, $target );
-            }
+		  my $ed = edistance( $self->{'source'}, $target, $args->{max_distance} );
+                $target_score->{$target} = $ed if($ed >= 0);
         }
 
         return $target_score;

@@ -4,21 +4,30 @@ use utf8;
 use Exporter qw/import/;
 our @EXPORT_OK = qw/pp_edistance/;
 
-our $VERSION = '0.15';
+our $VERSION = '0.16';
 
 sub pp_edistance {
-
     # Does the actual calculation on a pair of strings
-    my ( $source, $target ) = @_;
+    my ( $source, $target, $max_distance ) = @_;
+    $max_distance ||= 0;
+    $max_distance = 0 unless($max_distance =~ m/^\d+$/xms);
+
+    # Calculates return if $source or $target is undef
     if ( _null_or_empty($source) ) {
-        if ( _null_or_empty($target) ) {
+	 if(length($target) > $max_distance && $max_distance != 0) {
+	     return -1;
+	 }
+        elsif ( _null_or_empty($target) ) {
             return 0;
         }
-        else {
-            return length($target);
-        }
+
+        return length($target);
     }
     elsif ( _null_or_empty($target) ) {
+	 if(length($source) > $max_distance && $max_distance != 0) {
+	     return -1;
+	 }
+
         return length($source);
     }
     elsif ( $source eq $target ) {
@@ -31,7 +40,7 @@ sub pp_edistance {
     my %H;
     $H{0}{0} = $INF;
 
-    for ( 0 ... $m ) {
+    for ( 0 .. $m ) {
         my $i = $_;
         $H{ $i + 1 }{1} = $i;
         $H{ $i + 1 }{0} = $INF;
@@ -71,7 +80,11 @@ sub pp_edistance {
                 $H{$i1}{$j1} + ( $i - $i1 - 1 ) + 1 + ( $j - $j1 - 1 ) );
         }
 
-        $sd{ substr( $source, $i - 1, 1 ) } = $i;
+	 unless( $max_distance == 0 || $max_distance >= $H{ $i + 1 }{ $n + 1 }) {
+		return -1; 	
+  	 }
+
+	 $sd{ substr( $source, $i - 1, 1 ) } = $i;
     }
 
     return $H{ $m + 1 }{ $n + 1 };
@@ -89,7 +102,7 @@ sub _min {
 sub _null_or_empty {
     my $s = shift;
 
-    if ( defined($s) && $s ne {} ) {
+    if ( defined($s) && $s ne '' ) {
         return 0;
     }
 
@@ -140,15 +153,25 @@ Returns the true Damerau Levenshtein edit distance of strings with adjacent tran
 
 =head2 pp_edistance
 
-Arguments: source string and target string.
+Arguments: source string and target string. 
 
-Returns: scalar containing int that represents the edit distance between the two argument.
+=over
+
+=item * I<OPTIONAL 3rd argument> int (max distance; only return results with $int distance or less). 0 = unlimited. Default = 0.
+
+=back
+
+Returns: int that represents the edit distance between the two argument. -1 if max distance is set and reached.
 
 Function to take the edit distance between a source and target string. Contains the actual algorithm implementation. 
 
 	use Text::Levenshtein::Damerau::PP qw/pp_edistance/;
 	print pp_edistance('Neil','Niel');
 	# prints 1
+
+	print pp_edistance('Neil','Nielx',1);
+	# prints -1
+
 
 =head1 SEE ALSO
 
