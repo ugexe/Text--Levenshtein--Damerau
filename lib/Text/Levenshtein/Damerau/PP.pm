@@ -4,35 +4,14 @@ use utf8;
 use Exporter qw/import/;
 our @EXPORT_OK = qw/pp_edistance/;
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 
 sub pp_edistance {
+
     # Does the actual calculation on a pair of strings
     my ( $source, $target, $max_distance ) = @_;
     $max_distance ||= 0;
-    $max_distance = 0 unless($max_distance =~ m/^\d+$/xms);
-
-    # Calculates return if $source or $target is undef
-    if ( _null_or_empty($source) ) {
-	 if(length($target) > $max_distance && $max_distance != 0) {
-	     return -1;
-	 }
-        elsif ( _null_or_empty($target) ) {
-            return 0;
-        }
-
-        return length($target);
-    }
-    elsif ( _null_or_empty($target) ) {
-	 if(length($source) > $max_distance && $max_distance != 0) {
-	     return -1;
-	 }
-
-        return length($source);
-    }
-    elsif ( $source eq $target ) {
-        return 0;
-    }
+    $max_distance = 0 unless ( $max_distance =~ m/^\d+$/xms );
 
     my $m   = length($source);
     my $n   = length($target);
@@ -80,11 +59,12 @@ sub pp_edistance {
                 $H{$i1}{$j1} + ( $i - $i1 - 1 ) + 1 + ( $j - $j1 - 1 ) );
         }
 
-	 unless( $max_distance == 0 || $max_distance >= $H{ $i + 1 }{ $n + 1 }) {
-		return -1; 	
-  	 }
+        unless ( $max_distance == 0 || $max_distance >= $H{ $i + 1 }{ $n + 1 } )
+        {
+            return -1;
+        }
 
-	 $sd{ substr( $source, $i - 1, 1 ) } = $i;
+        $sd{ substr( $source, $i - 1, 1 ) } = $i;
     }
 
     return $H{ $m + 1 }{ $n + 1 };
@@ -117,21 +97,10 @@ __END__
 
 =head1 NAME
 
-C<Text::Levenshtein::Damerau::PP> - Pure Perl Damerau Levenshtein edit distance
+Text::Levenshtein::Damerau::PP - Pure Perl Damerau Levenshtein edit distance.
 
 =head1 SYNOPSIS
 
-	# Normal usage through Text::Levenshtein::Damerau
-	use Text::Levenshtein::Damerau qw/edistance/;
-	use warnings;
-	use strict;
-
-	print edistance('Neil','Niel');
-	# prints 1
-
-
-
-	# Using this module directly
 	use Text::Levenshtein::Damerau::PP qw/pp_edistance/;
 	use warnings;
 	use strict;
@@ -161,7 +130,7 @@ Arguments: source string and target string.
 
 =back
 
-Returns: int that represents the edit distance between the two argument. -1 if max distance is set and reached.
+Returns: int that represents the edit distance between the two argument. Stops calculations and returns -1 if max distance is set and reached.
 
 Function to take the edit distance between a source and target string. Contains the actual algorithm implementation. 
 
@@ -191,7 +160,7 @@ L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau>
 
 =head1 AUTHOR
 
-Nick Logan ugexe <F<ug@skunkds.com>>
+Nick Logan <F<ug@skunkds.com>>
 
 =head1 LICENSE AND COPYRIGHT
 

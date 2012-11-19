@@ -1,20 +1,27 @@
-use inc::Module::Install; 
+use strict;
+use warnings;
+use ExtUtils::MakeMaker;
 
-name          	'Text-Levenshtein-Damerau';
-all_from      	'lib/Text/Levenshtein/Damerau.pm';
-author			'ugexe';
-repository		'https://github.com/ugexe/Text--Levenshtein--Damerau';
-license		'perl';
+my $pm =   'lib/Text/Levenshtein/Damerau.pm';
+my $repo = 'https://github.com/ugexe/Text--Levenshtein--Damerau';
+my $bugs = 'https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau';
 
-#readme_from 		'lib/Text/Levenshtein/Damerau.pm', 1;
-#auto_manifest;
-#auto_set_repository;
-#auto_license;
-
-
-test_requires 'Test::More';
-requires 'List::Util';
-recommends 'Text::Levenshtein::Damerau::XS';
-
- 
-WriteAll();
+WriteMakefile (
+    NAME => 'Text::Levenshtein::Damerau',
+    VERSION_FROM => $pm,
+    ABSTRACT_FROM => $pm,
+    AUTHOR => 'Nick Logan <ug@skunkds.org>',
+    LICENSE => 'perl',
+    PREREQ_PM => {
+	'List::Util'		=> 0,
+    },
+    BUILD_REQUIRES => {
+	'Test::More'		=> 0,
+    },
+    META_MERGE => {
+        resources => {
+            repository => $repo,
+            bugtracker => "$bugs",
+        },
+    },
+);

@@ -1,5 +1,5 @@
 NAME
-    "Text::Levenshtein::Damerau" - Damerau Levenshtein edit distance.
+    Text::Levenshtein::Damerau - Damerau Levenshtein edit distance.
 
 SYNOPSIS
             use Text::Levenshtein::Damerau;
@@ -96,7 +96,7 @@ METHODS
 
             my @names_list = ('Niel','Jack');
             my $tld = Text::Levenshtein::Damerau->new('Neil');
-            my $d_ref = $tld->dld({ list=> \@names_list }); # pass a list, returns a hash
+            my $d_ref = $tld->dld({ list=> \@names_list }); # pass a list, returns a hash ref
             print $d_ref->{'Niel'}; #prints 1
             print $d_ref->{'Jack'}; #prints 4
 
@@ -132,8 +132,11 @@ EXPORTABLE METHODS
   edistance
     Arguments: source string and target string.
 
-    Returns: scalar containing int that represents the edit distance between
-    the two strings.
+    *   *OPTIONAL 3rd argument* int (max distance; only return results with
+        $int distance or less). 0 = unlimited. Default = 0.
+
+    Returns: int that represents the edit distance between the two argument.
+    -1 if max distance is set and reached.
 
     Wrapper function to take the edit distance between a source and target
     string. It will attempt to use, in order:
@@ -161,7 +164,7 @@ BUGS
     rau>
 
 AUTHOR
-    Nick Logan (ugexe) <ug@skunkds.com>
+    Nick Logan <ug@skunkds.com>
 
 LICENSE AND COPYRIGHT
     This library is free software; you can redistribute it and/or modify it

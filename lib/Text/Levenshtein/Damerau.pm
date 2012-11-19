@@ -1,32 +1,29 @@
 package Text::Levenshtein::Damerau;
-use Text::Levenshtein::Damerau::PP;
+require Text::Levenshtein::Damerau::PP;
 use strict;
 use utf8;
 use List::Util qw/reduce/;
 use Exporter qw/import/;
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION = '0.30';
-
+our $VERSION   = '0.31';
 
 # To XS or not to XS...
-eval {
-	require Text::Levenshtein::Damerau::XS;
-};
-if($@) {
-  # Included in distro
-  _set_backend('Text::Levenshtein::Damerau::PP::pp_edistance');
+eval { require Text::Levenshtein::Damerau::XS; };
+if ($@) {
+
+    # Included in distro
+    _set_backend('Text::Levenshtein::Damerau::PP::pp_edistance');
 }
 else {
-  _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance');
+    _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance');
 }
-
 
 sub new {
     my $class = shift;
     my $self  = {};
 
-    $self->{'source'} = shift;
+    $self->{'source'}       = shift;
     $self->{'max_distance'} = 0;
     bless( $self, $class );
 
@@ -43,13 +40,14 @@ sub dld {
     elsif ( ref $args->{'list'} eq ref [] ) {
         my $target_score;
 
-        if( defined($args->{'backend'}) ) {
-	     _set_backend($args->{'backend'});
+        if ( defined( $args->{'backend'} ) ) {
+            _set_backend( $args->{'backend'} );
         }
-	
+
         foreach my $target ( @{ $args->{'list'} } ) {
-		  my $ed = edistance( $self->{'source'}, $target, $args->{max_distance} );
-                $target_score->{$target} = $ed if($ed >= 0);
+            my $ed =
+              edistance( $self->{'source'}, $target, $args->{max_distance} );
+            $target_score->{$target} = $ed if ( $ed >= 0 );
         }
 
         return $target_score;
@@ -65,7 +63,7 @@ sub dld_best_match {
     if ( defined( $args->{'list'} ) ) {
         my $hash_ref = $self->dld($args);
 
-	 #Get the hashref key with the smallest value
+        #Get the hashref key with the smallest value
         return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b }
         keys %{$hash_ref};
     }
@@ -81,24 +79,30 @@ sub dld_best_distance {
 }
 
 sub _set_backend {
-  my $be = shift;
-  my $module = $be;
-  $module =~ s/^(.*)::.*?$/$1/g;
+    my $be     = shift;
+    my $module = $be;
+    $module =~ s/^(.*)::.*?$/$1/g;
+    local $@;
 
-  # Does the module exist?
-  eval "require $module";
-  unless($@) {
-       # Does the module have such a function?
-  	eval "defined &$be";
-	unless($@) {
-		# Does the function return a number if we give it 2 strings?
-		eval "die unless(&$be('four','fuor') =~ /[-+]?[0-9]*\.?[0-9]+/)";
-		unless($@) {
-			# We welcome our new edistance overlord
-	  		*edistance = \&$be;
-		}
-	}
-  }
+    # Does the module exist?
+    eval "require $module";
+    unless ($@) {
+        local $@;
+        # Does the module have such a function?
+        eval "defined &$be";
+        unless ($@) {
+            local $@;
+
+            # Does the function return a number if we give it 2 strings?
+            eval "die unless(&$be('four','fuor') =~ /[-+]?[0-9]*\.?[0-9]+/)";
+            unless ($@) {
+                local $@;
+
+                # We welcome our new edistance overlord
+                *edistance = \&$be;
+            }
+        }
+    }
 }
 
 1;
@@ -109,7 +113,7 @@ __END__
 
 =head1 NAME
 
-C<Text::Levenshtein::Damerau> - Damerau Levenshtein edit distance.
+Text::Levenshtein::Damerau - Damerau Levenshtein edit distance.
 
 =head1 SYNOPSIS
 
@@ -203,7 +207,7 @@ Returns: hashref with each word from the passed list as keys, and their edit dis
 
 	my @names_list = ('Niel','Jack');
 	my $tld = Text::Levenshtein::Damerau->new('Neil');
-	my $d_ref = $tld->dld({ list=> \@names_list }); # pass a list, returns a hash
+	my $d_ref = $tld->dld({ list=> \@names_list }); # pass a list, returns a hash ref
 	print $d_ref->{'Niel'}; #prints 1
 	print $d_ref->{'Jack'}; #prints 4
 
@@ -239,7 +243,13 @@ Takes distance of $tld source against every item in the passed array, then retur
 
 Arguments: source string and target string.
 
-Returns: scalar containing int that represents the edit distance between the two strings.
+=over
+
+=item * I<OPTIONAL 3rd argument> int (max distance; only return results with $int distance or less). 0 = unlimited. Default = 0.
+
+=back
+
+Returns: int that represents the edit distance between the two argument. -1 if max distance is set and reached.
 
 Wrapper function to take the edit distance between a source and target string. It will attempt to use, in order: 
 
@@ -275,7 +285,7 @@ L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau>
 
 =head1 AUTHOR
 
-Nick Logan (ugexe) <F<ug@skunkds.com>>
+Nick Logan <F<ug@skunkds.com>>
 
 =head1 LICENSE AND COPYRIGHT
 
