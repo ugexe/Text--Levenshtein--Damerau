@@ -10,7 +10,7 @@ BEGIN {
 }
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.32';
+our $VERSION   = '0.33';
 
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
