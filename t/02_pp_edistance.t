@@ -15,13 +15,13 @@ is( pp_edistance('four','FOuR'), 	3, 'test pp_edistance case');
 is( pp_edistance('four',''), 	4, 'test pp_edistance target empty');
 is( pp_edistance('','four'), 	4, 'test pp_edistance source empty');
 is( pp_edistance('',''), 		0, 'test pp_edistance source & target empty');
-is( pp_edistance('11','1'), 	1, 'test pp_edistance source & target empty');
-is( pp_edistance('xxx','x',1),    -1, 'test pp_edistance max distance setting');
-is( pp_edistance('xxx','xx',1),    1, 'test pp_edistance max distance setting');
+is( pp_edistance('11','1'), 	1, 'test pp_edistance numbers');
+is( pp_edistance('xxx','x',1),    -1, 'test pp_edistance > max distance setting');
+is( pp_edistance('xxx','xx',1),    1, 'test pp_edistance <= max distance setting');
 
 # Test some utf8
 use utf8;
-binmode STDOUT, ":encoding(utf8)";
+binmode STDOUT, ":utf8";
 is( pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓤⓡ'), 	0, 'test pp_edistance matching (utf8)');
 is( pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓡ'), 	1, 'test pp_edistance insertion (utf8)');
 is( pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓤⓡⓣⓗ'), 2, 'test pp_edistance deletion (utf8)');

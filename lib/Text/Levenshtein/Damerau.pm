@@ -1,22 +1,20 @@
 package Text::Levenshtein::Damerau;
-require Text::Levenshtein::Damerau::PP;
 use strict;
 use utf8;
 use List::Util qw/reduce/;
-use Exporter qw/import/;
+
+# Fixes old Exporter (in Perl 5.6.2) import error
+BEGIN {
+  require Exporter;
+  *{import} = \&Exporter::import;
+}
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.31';
+our $VERSION   = '0.32';
 
 # To XS or not to XS...
-eval { require Text::Levenshtein::Damerau::XS; };
-if ($@) {
-
-    # Included in distro
+unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
     _set_backend('Text::Levenshtein::Damerau::PP::pp_edistance');
-}
-else {
-    _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance');
 }
 
 sub new {
@@ -79,30 +77,22 @@ sub dld_best_distance {
 }
 
 sub _set_backend {
-    my $be     = shift;
-    my $module = $be;
-    $module =~ s/^(.*)::.*?$/$1/g;
-    local $@;
+    my $be = shift;
+    my $mod = $be;
+    $mod =~ s/^(.*)::.*?$/$1/;
 
-    # Does the module exist?
-    eval "require $module";
+    local $@;    
+    eval "require $mod";
     unless ($@) {
-        local $@;
-        # Does the module have such a function?
-        eval "defined &$be";
-        unless ($@) {
-            local $@;
-
-            # Does the function return a number if we give it 2 strings?
-            eval "die unless(&$be('four','fuor') =~ /[-+]?[0-9]*\.?[0-9]+/)";
-            unless ($@) {
-                local $@;
-
-                # We welcome our new edistance overlord
-                *edistance = \&$be;
-            }
+	 eval "defined &$be";
+        unless($@) {
+            # We welcome our new edistance overlord
+            *edistance = \&$be;
+	     return 1;
         }
     }
+    
+    return 0;
 }
 
 1;
