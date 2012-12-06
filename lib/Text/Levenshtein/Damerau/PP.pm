@@ -14,7 +14,6 @@ our $VERSION = '0.18';
 local $@;
 eval { require List::Util; };
 unless ($@) {
-    # Lets cheat if we can (PP kosher?)
     *min = \&List::Util::min;
 }
 else {

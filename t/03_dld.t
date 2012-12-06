@@ -22,7 +22,7 @@ is_deeply($tld->dld({ list => \@list }), { four => 0, fourty => 2, fourteen => 4
 
 #Test some utf8
 use utf8;
-binmode STDOUT, ":utf8";
+no warnings; # Work around for Perl 5.6 and setting output encoding
 my $tld_utf8 = Text::Levenshtein::Damerau->new('ⓕⓞⓤⓡ');
 
 #Test utf8 scalar argument

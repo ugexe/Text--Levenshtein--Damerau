@@ -21,7 +21,7 @@ is( pp_edistance('xxx','xx',1),    1, 'test pp_edistance <= max distance setting
 
 # Test some utf8
 use utf8;
-binmode STDOUT, ":utf8";
+no warnings; # Work around for Perl 5.6 and setting output encoding
 is( pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓤⓡ'), 	0, 'test pp_edistance matching (utf8)');
 is( pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓡ'), 	1, 'test pp_edistance insertion (utf8)');
 is( pp_edistance('ⓕⓞⓤⓡ','ⓕⓞⓤⓡⓣⓗ'), 2, 'test pp_edistance deletion (utf8)');
