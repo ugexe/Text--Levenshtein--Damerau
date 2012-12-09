@@ -1,16 +1,16 @@
 package Text::Levenshtein::Damerau;
+use 5.008_008; # for utf8, sorry legacy Perls
 use strict;
 use utf8;
 use List::Util qw/reduce/;
 
-# Fixes old Exporter (in Perl 5.6.2) import error
 BEGIN {
   require Exporter;
   *{import} = \&Exporter::import;
 }
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.34';
+our $VERSION   = '0.35';
 
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {

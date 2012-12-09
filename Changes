@@ -1,5 +1,8 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.35 Sat Dec 08 23:40:10 2012
+	- Support for Perls earlier than 5.8 dropped (ha!)
+
 0.34 Thu Dec 06 02:18:37 2012
 	- another utf8 update for 5.6
 

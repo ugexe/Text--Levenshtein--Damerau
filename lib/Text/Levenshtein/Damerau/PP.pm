@@ -1,15 +1,15 @@
 package Text::Levenshtein::Damerau::PP;
+use 5.008_008; # for utf8, sorry legacy Perls
 use strict;
 use utf8;
 
-# Fixes old Exporter (in Perl 5.6.2) import error
 BEGIN {
   require Exporter;
   *{import} = \&Exporter::import;
 }
 
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION = '0.18';
+our $VERSION = '0.19';
 
 local $@;
 eval { require List::Util; };

@@ -1,5 +1,6 @@
+use 5.008_008; # for utf8, sorry legacy Perls
 use strict;
-use warnings;
+use warnings; 
 use ExtUtils::MakeMaker;
 
 my $pm =   'lib/Text/Levenshtein/Damerau.pm';
