@@ -1,5 +1,8 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.36 Thu Dec 13 00:45:41
+	- MIN_PERL_VERSION added back to Makefile using different number format
+
 0.35 Sat Dec 08 23:40:10 2012
 	- Support for Perls earlier than 5.8 dropped (ha!)
 

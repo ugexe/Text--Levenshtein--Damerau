@@ -9,10 +9,11 @@ my $bugs = 'https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-D
 
 WriteMakefile (
     NAME => 'Text::Levenshtein::Damerau',
-    VERSION_FROM => $pm,
+    VERSION_FROM => $pm, 
     ABSTRACT_FROM => $pm,
     AUTHOR => 'Nick Logan <ug@skunkds.org>',
     LICENSE => 'perl',
+    MIN_PERL_VERSION => '5.008008',
     PREREQ_PM => {
 	'List::Util'		=> 0,
     },
@@ -21,8 +22,9 @@ WriteMakefile (
     },
     META_MERGE => {
         resources => {
-            repository => $repo,
+            repository => $repo, 
             bugtracker => "$bugs",
         },
     },
+    depend => { '$(FIRST_MAKEFILE)' => '$(VERSION_FROM)' },
 );

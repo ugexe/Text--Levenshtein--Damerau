@@ -4,13 +4,13 @@ use strict;
 use utf8;
 use List::Util qw/reduce/;
 
-BEGIN {
+BEGIN { 
   require Exporter;
   *{import} = \&Exporter::import;
 }
 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.35';
+our $VERSION   = '0.36';
 
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
