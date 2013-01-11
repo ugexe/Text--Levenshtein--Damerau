@@ -1,5 +1,8 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.37 Thu Jan 10 00:18:41
+	- Optimizations in ::PP
+
 0.36 Thu Dec 13 00:45:41
 	- MIN_PERL_VERSION added back to Makefile using different number format
 

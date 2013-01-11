@@ -9,7 +9,7 @@ BEGIN {
 }
 
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION = '0.19';
+our $VERSION = '0.20';
 
 local $@;
 eval { require List::Util; };
@@ -30,33 +30,44 @@ sub pp_edistance {
 
     my $m   = length($source);
     my $n   = length($target);
+ 
+    if($m == 0 && $n == 0) {
+	return 0;
+    }
+    elsif($m == 0) {
+	return $n;
+    }
+    elsif($n == 0) {
+       return $m;
+    }
+
     my $INF = $m + $n;
     my %H;
-    $H{0}{0} = $INF;
-
-    for ( 0 .. $m ) {
-        my $i = $_;
-        $H{ $i + 1 }{1} = $i;
-        $H{ $i + 1 }{0} = $INF;
-    }
-    for ( 0 .. $n ) {
-        my $j = $_;
-        $H{1}{ $j + 1 } = $j;
-        $H{0}{ $j + 1 } = $INF;
-    }
-
     my %sd;
-    for ( 0 .. ( $m + $n ) ) {
-        my $letter = substr( $source . $target, $_ - 1, 1 );
-        $sd{$letter} = 0;
-    }
+
+    $H{0}{0} = $INF;
+    $H{1}{1} = 0;
+    $H{1}{0} = $INF;
+    $H{0}{1} = $INF;
+
 
     for ( 1 .. $m ) {
         my $i  = $_;
         my $DB = 0;
 
+        $sd{substr( $source, $i - 1, 1 )} = 0;
+        $H{ $i + 1 }{1} = $i;
+        $H{ $i + 1 }{0} = $INF;
+
         for ( 1 .. $n ) {
             my $j  = $_;
+	      
+            if( $i == 1 ) {
+                $sd{substr( $target, $j - 1, 1 )} = 0;
+	         $H{1}{ $j + 1 } = $j;
+       	  $H{0}{ $j + 1 } = $INF;
+	     }
+
             my $i1 = $sd{ substr( $target, $j - 1, 1 ) };
             my $j1 = $DB;
 
@@ -117,8 +128,6 @@ Text::Levenshtein::Damerau::PP - Pure Perl Damerau Levenshtein edit distance.
 =head1 SYNOPSIS
 
 	use Text::Levenshtein::Damerau::PP qw/pp_edistance/;
-	use warnings;
-	use strict;
 
 	print pp_edistance('Neil','Niel');
 	# prints 1
@@ -127,7 +136,9 @@ Text::Levenshtein::Damerau::PP - Pure Perl Damerau Levenshtein edit distance.
 
 Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions. Pure Perl implementation. Works correctly with utf8.
 
+	use Text::Levenshtein::Damerau::PP qw/pp_edistance/;
 	use utf8;
+
 	pp_edistance('ⓕⓞⓤⓡ','ⓕⓤⓞⓡ'), 
 	# prints 1
 

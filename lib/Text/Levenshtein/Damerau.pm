@@ -8,9 +8,9 @@ BEGIN {
   require Exporter;
   *{import} = \&Exporter::import;
 }
-
+ 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.36';
+our $VERSION   = '0.37';
 
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
