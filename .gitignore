@@ -11,3 +11,4 @@ MANIFEST*
 /Makefile
 *.tar
 *.gz
+*.old
