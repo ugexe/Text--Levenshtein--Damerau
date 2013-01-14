@@ -72,6 +72,7 @@ sub pp_edistance {
 
             my $target_char_count =
               $dictionary_count{ substr( $target, $target_index - 1, 1 ) };
+	     my $prev_swap_count = $swap_count;
 
             if (
                 substr( $source, $source_index - 1, 1 ) eq
@@ -91,9 +92,9 @@ sub pp_edistance {
 
             $scores{ $source_index + 1 }{ $target_index + 1 } = min(
                 $scores{ $source_index + 1 }{ $target_index + 1 },
-                $scores{$target_char_count}{$swap_count} +
+                $scores{$target_char_count}{$prev_swap_count} +
                   ( $source_index - $target_char_count - 1 ) + 1 +
-                  ( $target_index - $swap_count - 1 )
+                  ( $target_index - $prev_swap_count - 1 )
             );
         }
 
