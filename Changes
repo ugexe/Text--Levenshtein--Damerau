@@ -1,5 +1,8 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.38 ?
+	- Variable name clarifications
+
 0.37 Thu Jan 10 00:18:41
 	- Optimizations in ::PP
 

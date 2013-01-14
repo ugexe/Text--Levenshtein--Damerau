@@ -1,15 +1,15 @@
 package Text::Levenshtein::Damerau::PP;
-use 5.008_008; # for utf8, sorry legacy Perls
+use 5.008_008;    # for utf8, sorry legacy Perls
 use strict;
 use utf8;
 
 BEGIN {
-  require Exporter;
-  *{import} = \&Exporter::import;
+    require Exporter;
+    *{import} = \&Exporter::import;
 }
 
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION = '0.20';
+our $VERSION   = '0.21';
 
 local $@;
 eval { require List::Util; };
@@ -20,7 +20,6 @@ else {
     *min = \&_min;
 }
 
-
 sub pp_edistance {
 
     # Does the actual calculation on a pair of strings
@@ -28,72 +27,88 @@ sub pp_edistance {
     $max_distance ||= 0;
     $max_distance = 0 unless ( $max_distance =~ m/^\d+$/xms );
 
-    my $m   = length($source);
-    my $n   = length($target);
- 
-    if($m == 0 && $n == 0) {
-	return 0;
+    my $source_length = length($source);
+    my $target_length = length($target);
+
+    # If a string is blank there is no need to do calculations
+    if ( $source_length == 0 && $target_length == 0 ) {
+        return 0;
     }
-    elsif($m == 0) {
-	return $n;
+    elsif ( $source_length == 0 ) {
+        return $target_length;
     }
-    elsif($n == 0) {
-       return $m;
+    elsif ( $target_length == 0 ) {
+        return $source_length;
     }
 
-    my $INF = $m + $n;
-    my %H;
-    my %sd;
+    my $lengths_max = $source_length + $target_length;
+    my %scores;              #scoring matrix
+    my %dictionary_count;    #create dictionary to keep character count
 
-    $H{0}{0} = $INF;
-    $H{1}{1} = 0;
-    $H{1}{0} = $INF;
-    $H{0}{1} = $INF;
+    # init values outside of work loops
+    $scores{0}{0} = $lengths_max;
+    $scores{1}{1} = 0;
+    $scores{1}{0} = $lengths_max;
+    $scores{0}{1} = $lengths_max;
 
+    # Work Loops
+    for ( 1 .. $source_length ) {
+        my $source_index     = $_;
+        my $transposed_score = 0;
 
-    for ( 1 .. $m ) {
-        my $i  = $_;
-        my $DB = 0;
+        $dictionary_count{ substr( $source, $source_index - 1, 1 ) } = 0;
+        $scores{ $source_index + 1 }{1} = $source_index;
+        $scores{ $source_index + 1 }{0} = $lengths_max;
 
-        $sd{substr( $source, $i - 1, 1 )} = 0;
-        $H{ $i + 1 }{1} = $i;
-        $H{ $i + 1 }{0} = $INF;
+        for ( 1 .. $target_length ) {
+            my $target_index = $_;
 
-        for ( 1 .. $n ) {
-            my $j  = $_;
-	      
-            if( $i == 1 ) {
-                $sd{substr( $target, $j - 1, 1 )} = 0;
-	         $H{1}{ $j + 1 } = $j;
-       	  $H{0}{ $j + 1 } = $INF;
-	     }
+            if ( $source_index == 1 ) {
+                $dictionary_count{ substr( $target, $target_index - 1, 1 ) } =
+                  0;
+                $scores{1}{ $target_index + 1 } = $target_index;
+                $scores{0}{ $target_index + 1 } = $lengths_max;
+            }
 
-            my $i1 = $sd{ substr( $target, $j - 1, 1 ) };
-            my $j1 = $DB;
+            my $target_char_count =
+              $dictionary_count{ substr( $target, $target_index - 1, 1 ) };
 
-            if ( substr( $source, $i - 1, 1 ) eq substr( $target, $j - 1, 1 ) )
+            if (
+                substr( $source, $source_index - 1, 1 ) eq
+                substr( $target, $target_index - 1, 1 ) )
             {
-                $H{ $i + 1 }{ $j + 1 } = $H{$i}{$j};
-                $DB = $j;
+                $scores{ $source_index + 1 }{ $target_index + 1 } =
+                  $scores{$source_index}{$target_index};
+                $transposed_score = $target_index;
             }
             else {
-                $H{ $i + 1 }{ $j + 1 } =
-                  min( $H{$i}{$j}, $H{ $i + 1 }{$j}, $H{$i}{ $j + 1 } ) + 1;
+                $scores{ $source_index + 1 }{ $target_index + 1 } = min(
+                    $scores{$source_index}{$target_index},
+                    $scores{ $source_index + 1 }{$target_index},
+                    $scores{$source_index}{ $target_index + 1 }
+                ) + 1;
             }
 
-            $H{ $i + 1 }{ $j + 1 } = min( $H{ $i + 1 }{ $j + 1 },
-                $H{$i1}{$j1} + ( $i - $i1 - 1 ) + 1 + ( $j - $j1 - 1 ) );
+            $scores{ $source_index + 1 }{ $target_index + 1 } = min(
+                $scores{ $source_index + 1 }{ $target_index + 1 },
+                $scores{$target_char_count}{$transposed_score} +
+                  ( $source_index - $target_char_count - 1 ) + 1 +
+                  ( $target_index - $transposed_score - 1 )
+            );
         }
 
-        unless ( $max_distance == 0 || $max_distance >= $H{ $i + 1 }{ $n + 1 } )
+        unless ( $max_distance == 0
+            || $max_distance >=
+            $scores{ $source_index + 1 }{ $target_length + 1 } )
         {
             return -1;
         }
 
-        $sd{ substr( $source, $i - 1, 1 ) } = $i;
+        $dictionary_count{ substr( $source, $source_index - 1, 1 ) } =
+          $source_index;
     }
 
-    return $H{ $m + 1 }{ $n + 1 };
+    return $scores{ $source_length + 1 }{ $target_length + 1 };
 }
 
 sub _min {
