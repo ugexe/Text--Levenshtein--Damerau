@@ -54,7 +54,7 @@ sub pp_edistance {
     # Work Loops
     for ( 1 .. $source_length ) {
         my $source_index     = $_;
-        my $transposed_score = 0;
+        my $swap_count = 0;
 
         $dictionary_count{ substr( $source, $source_index - 1, 1 ) } = 0;
         $scores{ $source_index + 1 }{1} = $source_index;
@@ -79,7 +79,7 @@ sub pp_edistance {
             {
                 $scores{ $source_index + 1 }{ $target_index + 1 } =
                   $scores{$source_index}{$target_index};
-                $transposed_score = $target_index;
+                $swap_count = $target_index;
             }
             else {
                 $scores{ $source_index + 1 }{ $target_index + 1 } = min(
@@ -91,9 +91,9 @@ sub pp_edistance {
 
             $scores{ $source_index + 1 }{ $target_index + 1 } = min(
                 $scores{ $source_index + 1 }{ $target_index + 1 },
-                $scores{$target_char_count}{$transposed_score} +
+                $scores{$target_char_count}{$swap_count} +
                   ( $source_index - $target_char_count - 1 ) + 1 +
-                  ( $target_index - $transposed_score - 1 )
+                  ( $target_index - $swap_count - 1 )
             );
         }
 
