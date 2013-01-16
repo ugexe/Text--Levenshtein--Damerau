@@ -10,7 +10,7 @@ BEGIN {
 }
  
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.37';
+our $VERSION   = '0.38';
 
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
@@ -51,9 +51,8 @@ sub dld {
         return $target_score;
 
     }
-
 }
-
+ 
 sub dld_best_match {
     my $self = shift;
     my $args = shift;
@@ -64,21 +63,20 @@ sub dld_best_match {
         #Get the hashref key with the smallest value
         return reduce { $hash_ref->{$a} < $hash_ref->{$b} ? $a : $b }
         keys %{$hash_ref};
-    }
+    } 
 }
 
 sub dld_best_distance {
     my $self = shift;
     my $args = shift;
-
+ 
     if ( defined( $args->{'list'} ) ) {
         return $self->dld( $self->dld_best_match($args) );
     }
 }
 
 sub _set_backend {
-    my $be = shift;
-    my $mod = $be;
+    my $be = my $mod = shift;
     $mod =~ s/^(.*)::.*?$/$1/;
 
     local $@;    

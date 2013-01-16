@@ -7,7 +7,7 @@ my $pm =   'lib/Text/Levenshtein/Damerau.pm';
 my $repo = 'https://github.com/ugexe/Text--Levenshtein--Damerau';
 my $bugs = 'https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau';
  
-WriteMakefile (
+WriteMakefile (  
     NAME => 'Text::Levenshtein::Damerau',
     VERSION_FROM => $pm, 
     ABSTRACT_FROM => $pm,

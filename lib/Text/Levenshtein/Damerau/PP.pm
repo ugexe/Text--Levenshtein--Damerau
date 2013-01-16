@@ -9,7 +9,7 @@ BEGIN {
 }
 
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION   = '0.21';
+our $VERSION   = '0.22';
 
 local $@;
 eval { require List::Util; };
@@ -21,114 +21,83 @@ else {
 }
 
 sub pp_edistance {
-
     # Does the actual calculation on a pair of strings
     my ( $source, $target, $max_distance ) = @_;
-    $max_distance ||= 0;
-    $max_distance = 0 unless ( $max_distance =~ m/^\d+$/xms );
+    $max_distance = int($max_distance || 0);
 
-    my $source_length = length($source);
-    my $target_length = length($target);
-
-    # If a string is blank there is no need to do calculations
-    if ( $source_length == 0 && $target_length == 0 ) {
-        return 0;
-    }
-    elsif ( $source_length == 0 ) {
-        return $target_length;
-    }
-    elsif ( $target_length == 0 ) {
-        return $source_length;
-    }
+    my $source_length = length($source) || 0;
+    my $target_length = length($target) || 0;
+    return ($source_length?$source_length:$target_length) if(!$target_length || !$source_length);
 
     my $lengths_max = $source_length + $target_length;
-    my %scores;              #scoring matrix
-    my %dictionary_count;    #create dictionary to keep character count
+    my $dictionary_count;    #create dictionary to keep character count
+    my $swap_count;          
+    my $swap_score;          
+    my $target_char_count;   
+    my $source_index;
+    my $target_index;
+    my @scores;              
 
     # init values outside of work loops
-    $scores{0}{0} = $lengths_max;
-    $scores{1}{1} = 0;
-    $scores{1}{0} = $lengths_max;
-    $scores{0}{1} = $lengths_max;
+    $scores[0][0] = $scores[1][0] = $scores[0][1] = $lengths_max;
+    $scores[1][1] = 0;
 
     # Work Loops
-    for ( 1 .. $source_length ) {
-        my $source_index     = $_;
-        my $swap_count = 0;
+    foreach $source_index ( 1 .. $source_length ) {
+        $swap_count = 0;
+        $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } = 0;
+        $scores[ $source_index + 1 ][1] = $source_index;
+        $scores[ $source_index + 1 ][0] = $lengths_max;
 
-        $dictionary_count{ substr( $source, $source_index - 1, 1 ) } = 0;
-        $scores{ $source_index + 1 }{1} = $source_index;
-        $scores{ $source_index + 1 }{0} = $lengths_max;
-
-        for ( 1 .. $target_length ) {
-            my $target_index = $_;
-
+        foreach $target_index ( 1 .. $target_length ) {
             if ( $source_index == 1 ) {
-                $dictionary_count{ substr( $target, $target_index - 1, 1 ) } =
-                  0;
-                $scores{1}{ $target_index + 1 } = $target_index;
-                $scores{0}{ $target_index + 1 } = $lengths_max;
+                $dictionary_count->{ substr( $target, $target_index - 1, 1 ) } = 0;
+                $scores[1][ $target_index + 1 ] = $target_index;
+                $scores[0][ $target_index + 1 ] = $lengths_max;
             }
 
-            my $target_char_count =
-              $dictionary_count{ substr( $target, $target_index - 1, 1 ) };
-	     my $prev_swap_count = $swap_count;
+            $target_char_count =
+              $dictionary_count->{ substr( $target, $target_index - 1, 1 ) };
+	     $swap_score = $scores[$target_char_count][$swap_count] +
+                  ( $source_index - $target_char_count - 1 ) + 1 +
+                  ( $target_index - $swap_count - 1 );
 
             if (
-                substr( $source, $source_index - 1, 1 ) eq
+                substr( $source, $source_index - 1, 1 ) ne
                 substr( $target, $target_index - 1, 1 ) )
             {
-                $scores{ $source_index + 1 }{ $target_index + 1 } =
-                  $scores{$source_index}{$target_index};
-                $swap_count = $target_index;
+                $scores[ $source_index + 1 ][ $target_index + 1 ] = min(
+                    $scores[$source_index][$target_index]+1,
+                    $scores[ $source_index + 1 ][$target_index]+1,
+                    $scores[$source_index][ $target_index + 1 ]+1,
+                    $swap_score
+                );
             }
             else {
-                $scores{ $source_index + 1 }{ $target_index + 1 } = min(
-                    $scores{$source_index}{$target_index},
-                    $scores{ $source_index + 1 }{$target_index},
-                    $scores{$source_index}{ $target_index + 1 }
-                ) + 1;
-            }
+                $swap_count = $target_index;
 
-            $scores{ $source_index + 1 }{ $target_index + 1 } = min(
-                $scores{ $source_index + 1 }{ $target_index + 1 },
-                $scores{$target_char_count}{$prev_swap_count} +
-                  ( $source_index - $target_char_count - 1 ) + 1 +
-                  ( $target_index - $prev_swap_count - 1 )
-            );
+                $scores[ $source_index + 1 ][ $target_index + 1 ] = min(
+                  $scores[$source_index][$target_index], $swap_score
+                );
+            }
         }
 
-        unless ( $max_distance == 0
-            || $max_distance >=
-            $scores{ $source_index + 1 }{ $target_length + 1 } )
+        unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
         {
             return -1;
         }
 
-        $dictionary_count{ substr( $source, $source_index - 1, 1 ) } =
+        $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
           $source_index;
     }
 
-    return $scores{ $source_length + 1 }{ $target_length + 1 };
+    return $scores[ $source_length + 1 ][ $target_length + 1 ];
 }
-
+ 
 sub _min {
-    my $min = shift;
-    return $min if not @_;
-
-    my $next = shift;
-    unshift @_, $min < $next ? $min : $next;
+    return $_[0] if not @_;
+    unshift @_, $_[0] < $_[1] ? $_[0] : $_[1];
     goto &_min;
-}
-
-sub _null_or_empty {
-    my $s = shift;
-
-    if ( defined($s) && $s ne '' ) {
-        return 0;
-    }
-
-    return 1;
 }
 
 1;
