@@ -20,12 +20,12 @@ is( pp_edistance('xxx','x',1),    -1, 'test pp_edistance > max distance setting'
 is( pp_edistance('xxx','xx',1),    1, 'test pp_edistance <= max distance setting');
 
 # some extra maxDistance tests
-is( xs_edistance("xxx","xxxx",1),   1,  'test xs_edistance misc 1');
-is( xs_edistance("xxx","xxxx",2),   1,  'test xs_edistance misc 2');
-is( xs_edistance("xxx","xxxx",3),   1,  'test xs_edistance misc 3');
-is( xs_edistance("xxxx","xxx",1),   1,  'test xs_edistance misc 4');
-is( xs_edistance("xxxx","xxx",2),   1,  'test xs_edistance misc 5');
-is( xs_edistance("xxxx","xxx",3),   1,  'test xs_edistance misc 6');
+is( pp_edistance("xxx","xxxx",1),   1,  'test xs_edistance misc 1');
+is( pp_edistance("xxx","xxxx",2),   1,  'test xs_edistance misc 2');
+is( pp_edistance("xxx","xxxx",3),   1,  'test xs_edistance misc 3');
+is( pp_edistance("xxxx","xxx",1),   1,  'test xs_edistance misc 4');
+is( pp_edistance("xxxx","xxx",2),   1,  'test xs_edistance misc 5');
+is( pp_edistance("xxxx","xxx",3),   1,  'test xs_edistance misc 6');
 
 
 # Test some utf8

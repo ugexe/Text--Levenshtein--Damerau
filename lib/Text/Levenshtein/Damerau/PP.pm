@@ -78,8 +78,9 @@ sub pp_edistance {
         $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
           $source_index;
     }
-
-    return ($max_distance != 0 && $max_distance > $scores[ $source_length + 1 ][ $target_length + 1 ])?-1:$scores[ $source_length + 1 ][ $target_length + 1 ];
+ 
+    my $score = $scores[ $source_length + 1 ][ $target_length + 1 ];
+    return ($max_distance != 0 && $max_distance < $score)?-1:$score;
 }
  
 1;
