@@ -1,24 +1,12 @@
 package Text::Levenshtein::Damerau::PP;
 use 5.008_008;    # for utf8, sorry legacy Perls
 use strict;
-use utf8;
-
-BEGIN {
-    require Exporter;
-    *{import} = \&Exporter::import;
-}
-
+use List::Util qw/min/;
+require Exporter;
+ 
+our @ISA = qw(Exporter);
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION   = '0.22';
-
-local $@;
-eval { require List::Util; };
-unless ($@) {
-    *min = \&List::Util::min;
-}
-else {
-    *min = \&_min;
-}
+our $VERSION   = '0.24';
 
 sub pp_edistance {
     # Does the actual calculation on a pair of strings
@@ -82,24 +70,18 @@ sub pp_edistance {
             }
         }
 
-        unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
-        {
-            return -1;
-        }
+        #unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
+        #{
+        #    return -1;
+        #}
 
         $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
           $source_index;
     }
 
-    return $scores[ $source_length + 1 ][ $target_length + 1 ];
+    return ($max_distance != 0 && $max_distance > $scores[ $source_length + 1 ][ $target_length + 1 ])?-1:$scores[ $source_length + 1 ][ $target_length + 1 ];
 }
  
-sub _min {
-    return $_[0] if not @_;
-    unshift @_, $_[0] < $_[1] ? $_[0] : $_[1];
-    goto &_min;
-}
-
 1;
 
 __END__

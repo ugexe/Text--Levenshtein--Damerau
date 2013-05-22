@@ -11,7 +11,7 @@ WriteMakefile (
     NAME => 'Text::Levenshtein::Damerau',
     VERSION_FROM => $pm, 
     ABSTRACT_FROM => $pm,
-    AUTHOR => 'Nick Logan <ug@skunkds.org>',
+    AUTHOR => 'Nick Logan <ugexe@cpan.org>',
     LICENSE => 'perl',
     MIN_PERL_VERSION => '5.008008',
     PREREQ_PM => {
@@ -25,6 +25,18 @@ WriteMakefile (
             repository => $repo, 
             bugtracker => "$bugs",
         },
+        provides => {
+            'Text::Levenshtein::Damerau' => {
+                file    => 'lib/Text/Levenshtein/Damerau.pm',
+                version => '0.40',
+            },
+            'Text::Levenshtein::Damerau::PP' => {
+                file    => 'lib/Text/Levenshtein/Damerau/PP.pm',
+                version => '0.24',
+            },
+        },
+
     },
+
     depend => { '$(FIRST_MAKEFILE)' => '$(VERSION_FROM)' },
 );

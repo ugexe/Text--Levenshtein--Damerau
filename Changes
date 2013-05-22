@@ -1,5 +1,9 @@
 Revision history for Perl module Text::Levenshtein::Damerau
 
+0.39 ?
+	- Exporter 'import' 5.6 hack removed
+	- List::Util min check removed (used full time)
+
 0.38 Wed Jan 16 14:52:44 2013
 	- Variable name clarifications
 	- ::PP refactoring/optimizations

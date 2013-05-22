@@ -3,15 +3,12 @@ use 5.008_008; # for utf8, sorry legacy Perls
 use strict;
 use utf8;
 use List::Util qw/reduce/;
+require Exporter;
 
-BEGIN { 
-  require Exporter;
-  *{import} = \&Exporter::import;
-}
- 
+our @ISA = qw(Exporter); 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.38';
-
+our $VERSION   = '0.40';
+ 
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
     _set_backend('Text::Levenshtein::Damerau::PP::pp_edistance');
@@ -257,11 +254,11 @@ Wrapper function to take the edit distance between a source and target string. I
 
 =over 4
 
-=item * L<https://github.com/ugexe/Text--Levenshtein--Damerau> I<repository>
+=item * L<https://github.com/ugexe/Text--Levenshtein--Damerau> I<Repository>
 
-=item * L<http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance> I<damerau levenshtein explaination>
+=item * L<http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance> I<Damerau levenshtein explanation>
 
-=item * L<Text::Fuzzy> I<regular levenshtein distance>
+=item * L<Text::Fuzzy> I<Regular levenshtein distance>
 
 =back
 
