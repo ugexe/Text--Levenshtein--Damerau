@@ -28,11 +28,11 @@ WriteMakefile (
         provides => {
             'Text::Levenshtein::Damerau' => {
                 file    => 'lib/Text/Levenshtein/Damerau.pm',
-                version => '0.40',
+                version => '0.41',
             },
             'Text::Levenshtein::Damerau::PP' => {
                 file    => 'lib/Text/Levenshtein/Damerau/PP.pm',
-                version => '0.24',
+                version => '0.25',
             },
         },
 

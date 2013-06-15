@@ -6,7 +6,7 @@ require Exporter;
  
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION   = '0.24';
+our $VERSION   = '0.25';
 
 sub pp_edistance {
     # Does the actual calculation on a pair of strings
@@ -79,8 +79,8 @@ sub pp_edistance {
           $source_index;
     }
  
-    my $score = $scores[ $source_length + 1 ][ $target_length + 1 ];
-    return ($max_distance != 0 && $max_distance < $score)?-1:$score;
+    my $score = $scores[$source_length+1][$target_length+1];
+    return ($max_distance != 0 && $max_distance < $score)?(-1):$score;
 }
  
 1;

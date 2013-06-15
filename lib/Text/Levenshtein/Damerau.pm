@@ -7,7 +7,7 @@ require Exporter;
 
 our @ISA = qw(Exporter); 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.40';
+our $VERSION   = '0.41';
  
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
