@@ -7,7 +7,7 @@ require Exporter;
 
 our @ISA = qw(Exporter); 
 our @EXPORT_OK = qw/edistance/;
-our $VERSION   = '0.41';
+our $VERSION   = '0.42';
  
 # To XS or not to XS...
 unless ( _set_backend('Text::Levenshtein::Damerau::XS::xs_edistance') ) {
@@ -256,9 +256,9 @@ Wrapper function to take the edit distance between a source and target string. I
 
 =item * L<https://github.com/ugexe/Text--Levenshtein--Damerau> I<Repository>
 
-=item * L<http://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance> I<Damerau levenshtein explanation>
-
 =item * L<Text::Fuzzy> I<Regular levenshtein distance>
+
+=item * L<Text::Levenshtein::XS> I<Regular levenshtein distance>
 
 =back
 
@@ -266,11 +266,11 @@ Wrapper function to take the edit distance between a source and target string. I
 
 Please report bugs to:
 
-L<https://rt.cpan.org/Public/Dist/Display.html?Name=Text-Levenshtein-Damerau>
+L<https://github.com/ugexe/Text--Levenshtein--Damerau/issues>
 
 =head1 AUTHOR
 
-Nick Logan <F<ug@skunkds.com>>
+Nick Logan <F<ugexe@cpan.org>>
 
 =head1 LICENSE AND COPYRIGHT
 
