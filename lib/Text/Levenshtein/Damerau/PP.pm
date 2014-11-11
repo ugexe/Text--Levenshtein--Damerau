@@ -1,87 +1,71 @@
 package Text::Levenshtein::Damerau::PP;
 use 5.008_008;    # for utf8, sorry legacy Perls
 use strict;
-use List::Util qw/min/;
+use List::Util qw/min max/;
 require Exporter;
  
 our @ISA = qw(Exporter);
 our @EXPORT_OK = qw/pp_edistance/;
-our $VERSION   = '0.25';
+our $VERSION   = '0.26';
+
 
 sub pp_edistance {
-    # Does the actual calculation on a pair of strings
-    my ( $source, $target, $max_distance ) = @_;
-    $max_distance = int($max_distance || 0);
+    my ( $source, $target, $max ) = @_;
+    my $maxd = (defined $max && $max >= 0) ? $max : max(length($source), length($target));
 
-    my $source_length = length($source) || 0;
-    my $target_length = length($target) || 0;
-    return ($source_length?$source_length:$target_length) if(!$target_length || !$source_length);
+    my $sourceLength = length($source) || 0;
+    my $targetLength = length($target) || 0;
+    my (@currentRow, @previousRow, @transpositionRow);
 
-    my $lengths_max = $source_length + $target_length;
-    my $dictionary_count;    #create dictionary to keep character count
-    my $swap_count;          
-    my $swap_score;          
-    my $target_char_count;   
-    my $source_index;
-    my $target_index;
-    my @scores;              
+    # Swap source/target so that $sourceLength always contains the shorter string
+    if ($sourceLength > $targetLength) {
+        ($source,$target)             = ($target,$source);
+        ($sourceLength,$targetLength) = ($targetLength,$sourceLength);
+    }
 
-    # init values outside of work loops
-    $scores[0][0] = $scores[1][0] = $scores[0][1] = $lengths_max;
-    $scores[1][1] = 0;
+    return ((!defined $max || $maxd <= $targetLength)
+        ? $targetLength : -1) if($sourceLength == 0 || $targetLength == 0);
 
-    # Work Loops
-    foreach $source_index ( 1 .. $source_length ) {
-        $swap_count = 0;
-        $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } = 0;
-        $scores[ $source_index + 1 ][1] = $source_index;
-        $scores[ $source_index + 1 ][0] = $lengths_max;
+    my $diff = $targetLength - $sourceLength;
+    return -1 if defined $max && $diff > $maxd;
+    
+    $previousRow[$_] = $_ for 0..$sourceLength+1;
 
-        foreach $target_index ( 1 .. $target_length ) {
-            if ( $source_index == 1 ) {
-                $dictionary_count->{ substr( $target, $target_index - 1, 1 ) } = 0;
-                $scores[1][ $target_index + 1 ] = $target_index;
-                $scores[0][ $target_index + 1 ] = $lengths_max;
-            }
+    my $lastTargetCh = '';
+    foreach my $i  (1..$targetLength) {
+        my $targetCh   = substr($target, $i - 1, 1);
+        $currentRow[0] = $i;
+        my $start      = max($i - $maxd - 1, 1);
+        my $end        = min($i + $maxd + 1, $sourceLength);
 
-            $target_char_count =
-              $dictionary_count->{ substr( $target, $target_index - 1, 1 ) };
-	     $swap_score = $scores[$target_char_count][$swap_count] +
-                  ( $source_index - $target_char_count - 1 ) + 1 +
-                  ( $target_index - $swap_count - 1 );
+        my $lastSourceCh = '';
+        foreach my $j ($start..$end) {
+            my $sourceCh = substr($source, $j - 1, 1);
+            my $cost     = $sourceCh eq $targetCh ? 0 : 1;
 
-            if (
-                substr( $source, $source_index - 1, 1 ) ne
-                substr( $target, $target_index - 1, 1 ) )
-            {
-                $scores[ $source_index + 1 ][ $target_index + 1 ] = min(
-                    $scores[$source_index][$target_index]+1,
-                    $scores[ $source_index + 1 ][$target_index]+1,
-                    $scores[$source_index][ $target_index + 1 ]+1,
-                    $swap_score
+            $currentRow[$j] = min(
+                $currentRow[$j - 1] + 1, 
+                $previousRow[$j >= scalar @previousRow ? -1 : $j] + 1,
+                $previousRow[$j - 1] + $cost,
+                    ($sourceCh eq $lastTargetCh && $targetCh eq $lastSourceCh)
+                        ? $transpositionRow[$j - 2] + $cost
+                        : $maxd + 1
                 );
-            }
-            else {
-                $swap_count = $target_index;
 
-                $scores[ $source_index + 1 ][ $target_index + 1 ] = min(
-                  $scores[$source_index][$target_index], $swap_score
-                );
-            }
+            $lastSourceCh = $sourceCh;
         }
 
-        #unless ( $max_distance == 0 || $max_distance >= $scores[ $source_index + 1 ][ $target_length + 1 ] )
-        #{
-        #    return -1;
-        #}
+        $lastTargetCh = $targetCh;
 
-        $dictionary_count->{ substr( $source, $source_index - 1, 1 ) } =
-          $source_index;
+        my @tempRow       = @transpositionRow;
+        @transpositionRow = @previousRow;
+        @previousRow      = @currentRow;
+        @currentRow       = @tempRow;
     }
- 
-    my $score = $scores[$source_length+1][$target_length+1];
-    return ($max_distance != 0 && $max_distance < $score)?(-1):$score;
+
+    return (!$max.defined || $previousRow[$sourceLength] <= $maxd) ? $previousRow[$sourceLength] : -1;
 }
+
  
 1;
 
