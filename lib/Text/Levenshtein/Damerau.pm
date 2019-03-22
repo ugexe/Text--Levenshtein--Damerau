@@ -137,7 +137,7 @@ Text::Levenshtein::Damerau - Damerau Levenshtein edit distance.
 
 Returns the true Damerau Levenshtein edit distance of strings with adjacent transpositions. Useful for fuzzy matching, DNA variation metrics, and fraud detection.
 
-Defaults to using Pure Perl L<Text::Levenshtein::Damerau::PP>, but has an XS addon L<Text::Levenshtein::Damerau::XS> for massive speed imrovements. Works correctly with utf8 if backend supports it; known to work with C<Text::Levenshtein::Damerau::PP> and C<Text::Levenshtein::Damerau::XS>.
+Defaults to using Pure Perl L<Text::Levenshtein::Damerau::PP>, but has an XS addon L<Text::Levenshtein::Damerau::XS> for massive speed improvements. Works correctly with utf8 if backend supports it; known to work with C<Text::Levenshtein::Damerau::PP> and C<Text::Levenshtein::Damerau::XS>.
 
 	use utf8;
 	my $tld = Text::Levenshtein::Damerau->new('ⓕⓞⓤⓡ');
